@@ -1,12 +1,6 @@
-// CarouselShop.jsx
-// Requisitos:
-// - Bootstrap CSS carregado no projeto (ex: import "bootstrap/dist/css/bootstrap.min.css";)
-// - npm i react-awesome-lightbox
-// - import 'react-awesome-lightbox/build/style.css';
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Lightbox from "react-awesome-lightbox";
-import "react-awesome-lightbox/build/style.css";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 const CONTENT = {
   tabs: [
@@ -15,30 +9,30 @@ const CONTENT = {
     { id: "cosmeticos2", label: "Lojas de cosmetico" },
   ],
 
-  // 👇 se não quiseres usar por slide, podes ignorar; aqui usamos por slide
-  // title: "Lojas de cosmeticos",
-  // description: "....",
-
- 
-
   slides: [
     {
       id: "s1",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T105212.326.jpg",
+      image:
+        "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T105212.326.jpg",
       title: "Lojas de cosmeticos",
-      description:"Ideal para montras e vitrinas inteligentes, destacando produtos sem ocultá-los. Permite conteúdo dinâmico sobre produtos reais, criando um efeito de “realidade aumentada física”.",
+      description:
+        "Ideal para montras e vitrinas inteligentes, destacando produtos sem ocultá-los. Permite conteúdo dinâmico sobre produtos reais, criando um efeito de “realidade aumentada física”.",
     },
     {
       id: "s2",
-      image:  "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T111038.202.jpg",
+      image:
+        "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T111038.202.jpg",
       title: "Shopping e Mercados",
-      description: "Perfeito para áreas de grande fluxo, com campanhas visíveis sem bloquear a visão da montra. Conteúdo dinâmico e moderno para destacar produtos e promoções.",
+      description:
+        "Perfeito para áreas de grande fluxo, com campanhas visíveis sem bloquear a visão da montra. Conteúdo dinâmico e moderno para destacar produtos e promoções.",
     },
     {
       id: "s3",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T114812.256.jpg",
+      image:
+        "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-19T114812.256.jpg",
       title: "Lojas de cosmetico",
-      description:"Experiência premium com campanhas rotativas e animações suaves. Ideal para vitrinas inteligentes e comunicação visual moderna.",
+      description:
+        "Experiência premium com campanhas rotativas e animações suaves. Ideal para vitrinas inteligentes e comunicação visual moderna.",
     },
   ],
 
@@ -66,8 +60,12 @@ export default function CarouselShop() {
   // Transição do texto bottom-left
   const [textKey, setTextKey] = useState(0);
 
-  const lightboxImages = useMemo(() => {
-    return slides.map((s) => ({ url: s.image, title: s.title || "" }));
+  // ✅ YARL usa { src, ... }
+  const lightboxSlides = useMemo(() => {
+    return slides.map((s) => ({
+      src: s.image,
+      title: s.title || "",
+    }));
   }, [slides]);
 
   const goTo = (i) => {
@@ -122,7 +120,6 @@ export default function CarouselShop() {
     // crossfade
     if (showA) {
       setBgB(active.image);
-      // pequena espera para garantir que a imagem foi aplicada
       requestAnimationFrame(() => setShowA(false));
     } else {
       setBgA(active.image);
@@ -133,106 +130,101 @@ export default function CarouselShop() {
 
   return (
     <>
-      {isLightboxOpen && (
-        <Lightbox
-          images={lightboxImages}
-          startIndex={index}
-          onClose={() => setIsLightboxOpen(false)}
-        />
-      )}
- 
+      {/* Lightbox (YARL) */}
+      <Lightbox
+        open={isLightboxOpen}
+        close={() => setIsLightboxOpen(false)}
+        index={index}
+        slides={lightboxSlides}
+      />
 
       <div className="section tekup-section-padding">
-          <div className="section-carousel container">
-
-      <section
-        className="wl-hero position-relative overflow-hidden"
-        onMouseEnter={() => (hoveringRef.current = true)}
-        onMouseLeave={() => (hoveringRef.current = false)}
-      >
-        {/* Background layers (crossfade suave) */}
-        <div className="wl-bg-stack" aria-hidden="true">
-          <div
-            className={`wl-bg wl-bg-a ${showA ? "is-on" : "is-off"}`}
-            style={{ backgroundImage: `url(${bgA})` }}
-          />
-          <div
-            className={`wl-bg wl-bg-b ${showA ? "is-off" : "is-on"}`}
-            style={{ backgroundImage: `url(${bgB})` }}
-          />
-        </div>
-
-        {/* Overlays */}
-        <div className="wl-overlay" aria-hidden="true" />
-
-        {/* Bottom shadow gradient (YouTube-like) */}
-        <div className="wl-bottom-shadow" aria-hidden="true" />
-
-        {/* Top pills */}
-        <div className="wl-top container-fluid px-4 px-lg-5 pt-4">
-          <div className="d-flex gap-3 flex-wrap align-items-center">
-            {data.tabs.map((t, i) => {
-              const isActive = activeTab === t.id && i === 0;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`wl-pill btn border-0 ${
-                    isActive ? "wl-pill--active" : "wl-pill--idle"
-                  }`}
-                  onClick={() => setActiveTab(t.id)}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Stage */}
-        <div className="wl-stage container-fluid px-4 px-lg-5">
-          {/* Bottom left text (muda com slide) */}
-          <div className="wl-copy" key={textKey}>
-            <h2 className="wl-title mb-3">{active?.title || ""}</h2>
-            <p className="wl-desc mb-0">{active?.description || ""}</p>
-          </div>
-
-          {/* Bottom right indicator pill */}
-          <div className="wl-indicator">
-            <div className="wl-indicator-pill">
-              <div className="wl-indicator-dot wl-indicator-dot--big" />
-              <div className="wl-indicator-bar" />
-              {slides.map((_, i) => (
-                <button
-                  key={`dot-${i}`}
-                  type="button"
-                  className={`wl-indicator-dot ${
-                    i === index ? "wl-indicator-dot--active" : ""
-                  }`}
-                  onClick={() => goTo(i)}
-                  aria-label={`Ir para slide ${i + 1}`}
-                />
-              ))}
+        <div className="section-carousel container">
+          <section
+            className="wl-hero position-relative overflow-hidden"
+            onMouseEnter={() => (hoveringRef.current = true)}
+            onMouseLeave={() => (hoveringRef.current = false)}
+          >
+            {/* Background layers (crossfade suave) */}
+            <div className="wl-bg-stack" aria-hidden="true">
+              <div
+                className={`wl-bg wl-bg-a ${showA ? "is-on" : "is-off"}`}
+                style={{ backgroundImage: `url(${bgA})` }}
+              />
+              <div
+                className={`wl-bg wl-bg-b ${showA ? "is-off" : "is-on"}`}
+                style={{ backgroundImage: `url(${bgB})` }}
+              />
             </div>
-          </div>
 
-          {/* Clique no background abre lightbox (opcional) */}
-          <button
-            type="button"
-            className="wl-bg-click"
-            onClick={() => setIsLightboxOpen(true)}
-            aria-label="Abrir imagem"
-          />
+            {/* Overlays */}
+            <div className="wl-overlay" aria-hidden="true" />
+
+            {/* Bottom shadow gradient (YouTube-like) */}
+            <div className="wl-bottom-shadow" aria-hidden="true" />
+
+            {/* Top pills */}
+            <div className="wl-top container-fluid px-4 px-lg-5 pt-4">
+              <div className="d-flex gap-3 flex-wrap align-items-center">
+                {data.tabs.map((t, i) => {
+                  const isActive = activeTab === t.id && i === 0;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      className={`wl-pill btn border-0 ${
+                        isActive ? "wl-pill--active" : "wl-pill--idle"
+                      }`}
+                      onClick={() => setActiveTab(t.id)}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Stage */}
+            <div className="wl-stage container-fluid px-4 px-lg-5">
+              {/* Bottom left text (muda com slide) */}
+              <div className="wl-copy" key={textKey}>
+                <h2 className="wl-title mb-3">{active?.title || ""}</h2>
+                <p className="wl-desc mb-0">{active?.description || ""}</p>
+              </div>
+
+              {/* Bottom right indicator pill */}
+              <div className="wl-indicator">
+                <div className="wl-indicator-pill">
+                  <div className="wl-indicator-dot wl-indicator-dot--big" />
+                  <div className="wl-indicator-bar" />
+                  {slides.map((_, i) => (
+                    <button
+                      key={`dot-${i}`}
+                      type="button"
+                      className={`wl-indicator-dot ${
+                        i === index ? "wl-indicator-dot--active" : ""
+                      }`}
+                      onClick={() => goTo(i)}
+                      aria-label={`Ir para slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Clique no background abre lightbox (opcional) */}
+              <button
+                type="button"
+                className="wl-bg-click"
+                onClick={() => setIsLightboxOpen(true)}
+                aria-label="Abrir imagem"
+              />
+            </div>
+          </section>
         </div>
-      </section>
-          </div>
       </div>
 
       <style>{`
-
-       .section-carousel{
-           
-        }
+        .section-carousel{}
 
         .wl-hero{
           width:100%;
@@ -242,9 +234,7 @@ export default function CarouselShop() {
         }
 
         /* BG stack + crossfade */
-        .wl-bg-stack{ 
-          inset:0;
-        }
+        .wl-bg-stack{ inset:0; }
         .wl-bg{
           position:absolute;
           inset:0;
@@ -255,14 +245,8 @@ export default function CarouselShop() {
           transition: opacity .75s ease, transform 1.2s ease;
           will-change: opacity, transform;
         }
-        .wl-bg.is-on{
-          opacity: 1;
-          transform: scale(1.04);
-        }
-        .wl-bg.is-off{
-          opacity: 0;
-          transform: scale(1.02);
-        }
+        .wl-bg.is-on{ opacity: 1; transform: scale(1.04); }
+        .wl-bg.is-off{ opacity: 0; transform: scale(1.02); }
 
         .wl-overlay{
           position:absolute; inset:0;
@@ -281,10 +265,7 @@ export default function CarouselShop() {
           pointer-events:none;
         }
 
-        .wl-top{
-          position: relative;
-          z-index: 3;
-        }
+        .wl-top{ position: relative; z-index: 3; }
 
         .wl-pill{
           padding: 12px 18px;
@@ -417,14 +398,3 @@ export default function CarouselShop() {
     </>
   );
 }
-
-
-
-/*
-
-
- 
-
-
-
-*/

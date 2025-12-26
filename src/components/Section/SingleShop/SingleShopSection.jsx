@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
-// >>> Lightbox
-import Lightbox from "react-awesome-lightbox";
-import "react-awesome-lightbox/build/style.css";
+// ✅ Lightbox (React 19/Next 15 compat)
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 // >>> React-Bootstrap (Skeletons / Placeholders)
 import { Placeholder } from "react-bootstrap";
@@ -53,7 +53,7 @@ async function fetchJson(url) {
 
 /* =========================================================
    COMPONENTE: ProductIndustries (usa até 4 exemplos)
-   - Agora com Lightbox próprio (local)
+   - Lightbox local (YARL)
 ========================================================= */
 function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
   const data = useMemo(
@@ -80,10 +80,7 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
   const timerRef = useRef(null);
   const start = () => {
     stop();
-    timerRef.current = setInterval(
-      () => setIdx((i) => wrap(i + 1)),
-      autoPlayMs
-    );
+    timerRef.current = setInterval(() => setIdx((i) => wrap(i + 1)), autoPlayMs);
   };
   const stop = () => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -92,6 +89,7 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
   useEffect(() => {
     start();
     return stop;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [len, autoPlayMs]);
 
   // swipe
@@ -128,10 +126,12 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
   // ---- Lightbox local (para os 4 slides) ----
   const [lbOpen, setLbOpen] = useState(false);
   const [lbIndex, setLbIndex] = useState(0);
-  const lbImages = useMemo(
-    () => data.map((d) => ({ url: d.image, title: d.title })),
+
+  const lbSlides = useMemo(
+    () => data.map((d) => ({ src: d.image, title: d.title })),
     [data]
   );
+
   const openLightbox = (startAt = 0) => {
     setLbIndex(startAt);
     setLbOpen(true);
@@ -160,9 +160,7 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
           {data.map((it, i) => (
             <div key={it.key} className="pi-slide">
               <img
-                src={
-                  it.image.startsWith("http") ? it.image : API_BASE + it.image
-                }
+                src={it.image.startsWith("http") ? it.image : API_BASE + it.image}
                 alt={it.title}
                 role="button"
                 style={{ cursor: "zoom-in" }}
@@ -173,27 +171,15 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
         </div>
 
         {/* setas */}
-        <button
-          className="pi-arrow pi-prev"
-          onClick={() => goTo(idx - 1)}
-          aria-label="Anterior"
-        >
+        <button className="pi-arrow pi-prev" onClick={() => goTo(idx - 1)} aria-label="Anterior">
           ‹
         </button>
-        <button
-          className="pi-arrow pi-next"
-          onClick={() => goTo(idx + 1)}
-          aria-label="Seguinte"
-        >
+        <button className="pi-arrow pi-next" onClick={() => goTo(idx + 1)} aria-label="Seguinte">
           ›
         </button>
 
         {/* dots */}
-        <div
-          className="pi-dots"
-          role="tablist"
-          aria-label="Navegação de slides"
-        >
+        <div className="pi-dots" role="tablist" aria-label="Navegação de slides">
           {data.map((_, i) => (
             <button
               key={i}
@@ -225,7 +211,6 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
         ))}
       </div>
 
-      {/* estilos mínimos */}
       <style jsx>{`
         .pi-root {
           display: grid;
@@ -336,21 +321,19 @@ function ProductIndustries({ examples = [], autoPlayMs = 3500 }) {
         }
       `}</style>
 
-      {/* Lightbox local para os 4 slides */}
-      {lbOpen && (
-        <Lightbox
-          images={lbImages}
-          startIndex={lbIndex}
-          onClose={() => setLbOpen(false)}
-        />
-      )}
+      {/* Lightbox local (YARL) */}
+      <Lightbox
+        open={lbOpen}
+        close={() => setLbOpen(false)}
+        index={lbIndex}
+        slides={lbSlides}
+      />
     </div>
   );
 }
 
 /* =========================================================
    SKELETONS (React-Bootstrap Placeholders)
-   - Mantém a estrutura da página durante o carregamento
 ========================================================= */
 function Line({ xs = 12, style = {} }) {
   return (
@@ -419,7 +402,7 @@ function IndustriesSkeleton() {
 
 function ProductSkeleton() {
   return (
-    <> 
+    <>
       <div className="section">
         <div className="container">
           <div className="row align-items-center">
@@ -434,10 +417,7 @@ function ProductSkeleton() {
                   </div>
                 </div>
 
-                <ul
-                  className="tekup-tabs-menu"
-                  style={{ gap: 12, display: "flex", marginTop: 12 }}
-                >
+                <ul className="tekup-tabs-menu" style={{ gap: 12, display: "flex", marginTop: 12 }}>
                   {[0, 1, 2, 3].map((i) => (
                     <li key={i}>
                       <ThumbSkeleton />
@@ -451,35 +431,22 @@ function ProductSkeleton() {
             <div className="col-lg-6">
               <div className="tekup-details-content pt-4">
                 <Line xs={7} style={{ height: 34, borderRadius: 8 }} />
-                <Line
-                  xs={4}
-                  style={{ height: 16, borderRadius: 6, marginTop: 12 }}
-                />
+                <Line xs={4} style={{ height: 16, borderRadius: 6, marginTop: 12 }} />
 
                 <div className="tekup-product-info mt-4">
                   <Line xs={4} style={{ height: 20, borderRadius: 6 }} />
                   <ul style={{ listStyle: "none", paddingLeft: 0 }}>
                     <li>
-                      <Line
-                        xs={8}
-                        style={{ height: 14, borderRadius: 6, marginTop: 10 }}
-                      />
+                      <Line xs={8} style={{ height: 14, borderRadius: 6, marginTop: 10 }} />
                     </li>
                     <li>
-                      <Line
-                        xs={6}
-                        style={{ height: 14, borderRadius: 6, marginTop: 8 }}
-                      />
+                      <Line xs={6} style={{ height: 14, borderRadius: 6, marginTop: 8 }} />
                     </li>
                   </ul>
                 </div>
 
                 <div className="tekup-product-wrap mt-4">
-                  <Placeholder.Button
-                    xs={4}
-                    aria-hidden
-                    style={{ height: 40, borderRadius: 999 }}
-                  />
+                  <Placeholder.Button xs={4} aria-hidden style={{ height: 40, borderRadius: 999 }} />
                 </div>
               </div>
             </div>
@@ -487,10 +454,8 @@ function ProductSkeleton() {
         </div>
       </div>
 
-      {/* bloco dinâmico (simulado) */}
       <IndustriesSkeleton />
 
-      {/* BLOCOS ADICIONAIS (examplesRest) */}
       <section className="mt-4 bg-black">
         <div className="section tekup-section-padding">
           <div className="container">
@@ -499,20 +464,11 @@ function ProductSkeleton() {
             <div className="col">
               <div className="d-flex col justify-content-between">
                 <div>
-                  <Line
-                    xs={6}
-                    style={{ height: 28, borderRadius: 8, marginTop: 8 }}
-                  />
+                  <Line xs={6} style={{ height: 28, borderRadius: 8, marginTop: 8 }} />
                 </div>
                 <div style={{ maxWidth: "550px" }}>
-                  <Line
-                    xs={10}
-                    style={{ height: 14, borderRadius: 6, marginTop: 8 }}
-                  />
-                  <Line
-                    xs={9}
-                    style={{ height: 14, borderRadius: 6, marginTop: 6 }}
-                  />
+                  <Line xs={10} style={{ height: 14, borderRadius: 6, marginTop: 8 }} />
+                  <Line xs={9} style={{ height: 14, borderRadius: 6, marginTop: 6 }} />
                 </div>
               </div>
               <br />
@@ -520,10 +476,7 @@ function ProductSkeleton() {
                 {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
                   <article key={i} className="col-md-3 mb-3">
                     <ImgSkeleton height={180} rounded={8} />
-                    <Line
-                      xs={7}
-                      style={{ height: 16, borderRadius: 6, marginTop: 8 }}
-                    />
+                    <Line xs={7} style={{ height: 16, borderRadius: 6, marginTop: 8 }} />
                   </article>
                 ))}
               </div>
@@ -532,42 +485,23 @@ function ProductSkeleton() {
         </div>
       </section>
 
-      {/* TABS */}
       <div className="section tekup-section-padding">
         <div className="container">
           <div className="tekup-product-tab">
-            <ul className="nav nav-pills" id="pills-tab" role="tablist"> 
+            <ul className="nav nav-pills" id="pills-tab" role="tablist">
               <li className="nav-item" role="presentation">
-                <Placeholder.Button
-                  xs={2}
-                  aria-hidden
-                  style={{ height: 36, borderRadius: 999 }}
-                />
+                <Placeholder.Button xs={2} aria-hidden style={{ height: 36, borderRadius: 999 }} />
               </li>
             </ul>
-            <div
-              className="tab-content"
-              id="pills-tabContent"
-              style={{ marginTop: 16 }}
-            >
-              <Line
-                xs={12}
-                style={{ height: 14, borderRadius: 6, marginTop: 6 }}
-              />
-              <Line
-                xs={11}
-                style={{ height: 14, borderRadius: 6, marginTop: 6 }}
-              />
-              <Line
-                xs={10}
-                style={{ height: 14, borderRadius: 6, marginTop: 6 }}
-              />
+            <div className="tab-content" id="pills-tabContent" style={{ marginTop: 16 }}>
+              <Line xs={12} style={{ height: 14, borderRadius: 6, marginTop: 6 }} />
+              <Line xs={11} style={{ height: 14, borderRadius: 6, marginTop: 6 }} />
+              <Line xs={10} style={{ height: 14, borderRadius: 6, marginTop: 6 }} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* PRODUTOS RELACIONADOS */}
       <div className="tekup-related-product-section">
         <div className="container">
           <div className="tekup-section-title center">
@@ -590,11 +524,8 @@ function ProductSkeleton() {
 
 /* =========================================================
    PÁGINA: SingleShopSection (JSX)
-   - Lightbox na galeria principal (todas as imagens do produto)
-   - Lightbox na grelha de exemplos (examplesRest)
-   - Loader com skeletons (react-bootstrap) ao invés de texto
 ========================================================= */
-export default function SingleShopSection() { 
+export default function SingleShopSection() {
   const [productId, setProductId] = useState(null);
 
   useEffect(() => {
@@ -608,7 +539,6 @@ export default function SingleShopSection() {
     };
     readProduct();
 
-    // Guardar originais e repor no cleanup para evitar side-effects
     const _pushState = history.pushState;
     const _replaceState = history.replaceState;
 
@@ -634,30 +564,27 @@ export default function SingleShopSection() {
   const [error, setError] = useState("");
   const [item, setItem] = useState(null);
   const [related, setRelated] = useState([]);
-  const [examples, setExamples] = useState([]);  
+  const [examples, setExamples] = useState([]);
   const [activeTab, setActiveTab] = useState("description");
   const [activeImage, setActiveImage] = useState(0);
- 
 
   function AddChipIcon() {
-  setTimeout(() => {
-    const svg = "https://ik.imagekit.io/fsobpyaa5i/icons8-chip-50.png";
-    const items = document.querySelectorAll("#pills-description ul li");
+    setTimeout(() => {
+      const svg = "https://ik.imagekit.io/fsobpyaa5i/icons8-chip-50.png";
+      const items = document.querySelectorAll("#pills-description ul li");
 
-    items.forEach((li) => {
-      if (li.querySelector(".svg-chip")) return; // evita duplicados
+      items.forEach((li) => {
+        if (li.querySelector(".svg-chip")) return;
 
-      const img = document.createElement("img");
-      img.classList.add("svg-chip");
-      img.src = svg;
-      img.alt = "chip";
+        const img = document.createElement("img");
+        img.classList.add("svg-chip");
+        img.src = svg;
+        img.alt = "chip";
 
-      li.prepend(img);  
-    });
-  }, 500);
-}
-
-
+        li.prepend(img);
+      });
+    }, 500);
+  }
 
   useEffect(() => {
     let abort = false;
@@ -688,31 +615,20 @@ export default function SingleShopSection() {
       setExamples([]);
       setActiveImage(0);
 
-
- 
-
-
-
       try {
         // 1) Produto
-        const prodRaw = await fetchJson(
-          `${API_BASE}/api/products/${productId}`
-        );
+        const prodRaw = await fetchJson(`${API_BASE}/api/products/${productId}`);
         const prod = toProduct(prodRaw);
         if (!prod) throw new Error("Produto não encontrado.");
         if (abort) return;
         setItem(prod);
 
-    
-
-        // 2) Exemplos — ordenar ASC (mais antigos primeiro)
+        // 2) Exemplos — ordenar ASC
         try {
           const qs = new URLSearchParams();
           qs.set("productId", prod._id);
-          const examplesRaw = await fetchJson(
-            `${API_BASE}/api/examples?${qs.toString()}`
-          );
-          
+          const examplesRaw = await fetchJson(`${API_BASE}/api/examples?${qs.toString()}`);
+
           if (!abort) {
             const arr = toArray(examplesRaw);
             const asc = [...arr].sort((a, b) => {
@@ -738,9 +654,7 @@ export default function SingleShopSection() {
             if (abort) return;
             const relAll = toArray(relRaw);
             relatedList = relAll.filter((p) => p?._id !== prod._id);
-          } catch {
-            /* ignore */
-          }
+          } catch {}
         }
 
         if ((relatedList?.length || 0) < 4) {
@@ -748,22 +662,14 @@ export default function SingleShopSection() {
             const moreRaw = await fetchJson(`${API_BASE}/api/products`);
             if (abort) return;
             const more = toArray(moreRaw);
-            const forbiddenIds = new Set([
-              prod._id,
-              ...relatedList.map((p) => p._id),
-            ]);
+            const forbiddenIds = new Set([prod._id, ...relatedList.map((p) => p._id)]);
             const fillers = more.filter((p) => !forbiddenIds.has(p._id));
             relatedList = [...relatedList, ...fillers];
-          } catch {
-            /* ignore */
-          }
+          } catch {}
         }
 
         relatedList = relatedList.slice(0, 4);
         if (!abort) setRelated(relatedList);
-
- 
-
       } catch (e) {
         if (!abort) setError(e?.message || "Erro ao carregar produto.");
       } finally {
@@ -771,39 +677,37 @@ export default function SingleShopSection() {
       }
     }
 
-    run(); 
-     AddChipIcon()
+    run();
+    AddChipIcon();
+
     return () => {
       abort = true;
     };
   }, [productId]);
 
-  useEffect(()=>{
+  useEffect(() => {
     AddChipIcon();
-  })
+  });
 
   const images = useMemo(() => {
     const list = Array.isArray(item?.wl_images) ? item.wl_images : [];
     const normalized = list.map(withHost);
-    if (normalized.length === 0 && item?.wl_cover)
-      normalized.push(withHost(item.wl_cover));
+    if (normalized.length === 0 && item?.wl_cover) normalized.push(withHost(item.wl_cover));
     return normalized;
   }, [item]);
 
   const title = safeText(item?.wl_name, "Produto");
-  const sku = safeText(item?.wl_sku, "—");
   const catName = safeText(item?.wl_category?.wl_name, "Sem categoria");
   const shortDescription = safeText(item?.wl_specs_text, "");
 
-  // exemplos processados
   const examplesTop4 = useMemo(() => (examples || []).slice(0, 4), [examples]);
   const examplesRest = useMemo(() => (examples || []).slice(4), [examples]);
 
   // -------- Lightbox do produto (galeria principal) --------
   const [lbOpenProduct, setLbOpenProduct] = useState(false);
   const [lbIndexProduct, setLbIndexProduct] = useState(0);
-  const lbImagesProduct = useMemo(
-    () => images.map((src) => ({ url: src, title })),
+  const lbSlidesProduct = useMemo(
+    () => images.map((src) => ({ src, title })),
     [images, title]
   );
   const openProductLightbox = (i = 0) => {
@@ -814,14 +718,14 @@ export default function SingleShopSection() {
   // -------- Lightbox dos exemplos (grelha examplesRest) --------
   const [lbOpenExamples, setLbOpenExamples] = useState(false);
   const [lbIndexExamples, setLbIndexExamples] = useState(0);
-  const lbImagesExamples = useMemo(
+  const lbSlidesExamples = useMemo(
     () =>
       (examplesRest || [])
         .map((ex) => ({
-          url: withHost(ex?.image),
+          src: withHost(ex?.image),
           title: safeText(ex?.title, "Exemplo"),
         }))
-        .filter((x) => !!x.url),
+        .filter((x) => !!x.src),
     [examplesRest]
   );
   const openExamplesLightbox = (i = 0) => {
@@ -829,10 +733,7 @@ export default function SingleShopSection() {
     setLbOpenExamples(true);
   };
 
-  // ===== LOADING / ERROR STATES =====
-  if (loading) {
-    return <ProductSkeleton />;
-  }
+  if (loading) return <ProductSkeleton />;
 
   if (error) {
     return (
@@ -842,32 +743,32 @@ export default function SingleShopSection() {
     );
   }
 
-  // ===== CONTEÚDO =====
   return (
     <>
-      {/* BLOCO DINÂMICO (só se houver exemplos) */}
-      
- 
-
-       {examplesTop4.length > 0 && (
+      {examplesTop4.length > 0 && (
         <section className="section bg-grey pt-4">
           <div className="mt-4 mb-4">
-             <div className="container">
-                  <strong>Produtos {" > "} <b className="text-dark">Corporativo</b> {" > "} <a href="#" className="text-primary"> {title} </a></strong>
-             </div>
+            <div className="container">
+              <strong>
+                Produtos {" > "} <b className="text-dark">Corporativo</b> {" > "}{" "}
+                <a href="#" className="text-primary">
+                  {" "}
+                  {title}{" "}
+                </a>
+              </strong>
+            </div>
           </div>
+
           <div className="container pt-4 pb-4">
             <ProductIndustries examples={examplesTop4} />
           </div>
         </section>
       )}
 
-      
       <div className="section">
-        <div className="container"> 
+        <div className="container">
           <div className="row align-items-center">
-       
-               {/* GALERIA */}
+            {/* GALERIA */}
             <div className="col-lg-6">
               <div className="tekup-tab-slider">
                 <div className="tekup-tabs-container">
@@ -886,9 +787,7 @@ export default function SingleShopSection() {
                           cursor: images.length ? "zoom-in" : "default",
                         }}
                         role={images.length ? "button" : undefined}
-                        onClick={() =>
-                          images.length && openProductLightbox(activeImage)
-                        }
+                        onClick={() => images.length && openProductLightbox(activeImage)}
                         title={images.length ? "Ver em ecrã inteiro" : ""}
                       />
                     </div>
@@ -927,13 +826,11 @@ export default function SingleShopSection() {
               </div>
             </div>
 
-
-
             {/* DETALHES */}
             <div className="col-lg-6">
               <div className="tekup-details-content pt-4">
                 <h2 className="mt-0">{title}</h2> <br />
-              
+
                 <div className="tekup-product-info mt-4">
                   <h5>Informação rápida</h5>
                   <ul>
@@ -942,9 +839,7 @@ export default function SingleShopSection() {
                       {catName === "Sem categoria" ? (
                         <span>{catName}</span>
                       ) : (
-                        <Link
-                          href={`/shop?category=${encodeURIComponent(catName)}`}
-                        >
+                        <Link href={`/shop?category=${encodeURIComponent(catName)}`}>
                           {catName}
                         </Link>
                       )}
@@ -960,40 +855,32 @@ export default function SingleShopSection() {
                     </li>
                   </ul>
                 </div>
-                <div className="tekup-product-wrap mt-4"> 
-                   <RequestModal
-                      item={item}
-                      toggle_button={(open) => (
-                        <a href="#" className="tekup-default-btn col-lg-12 col" onClick={open}>
-                          Solicitar Produto
-                        </a>
-                      )}
-                    />
+
+                <div className="tekup-product-wrap mt-4">
+                  <RequestModal
+                    item={item}
+                    toggle_button={(open) => (
+                      <a href="#" className="tekup-default-btn col-lg-12 col" onClick={open}>
+                        Solicitar Produto
+                      </a>
+                    )}
+                  />
                 </div>
               </div>
             </div>
-
-    
-
-
-
-
           </div>
         </div>
       </div>
-   
 
-        {/* TABS */}
-        <br />
+      {/* TABS */}
+      <br />
       <div className="section tekup-section-padding pt-5 pb-2">
         <div className="container">
           <div className="tekup-product-tab">
             <ul className="nav nav-pills" id="pills-tab" role="tablist">
               <li className="nav-item" role="presentation">
                 <button
-                  className={`nav-link ${
-                    activeTab === "description" ? "active" : ""
-                  }`}
+                  className={`nav-link ${activeTab === "description" ? "active" : ""}`}
                   id="pills-description-tab"
                   onClick={() => setActiveTab("description")}
                 >
@@ -1004,168 +891,79 @@ export default function SingleShopSection() {
 
             <div className="tab-content" id="pills-tabContent">
               <div
-                className={`tab-pane fade ${
-                  activeTab === "description" ? "show active" : ""
-                }`}
+                className={`tab-pane fade ${activeTab === "description" ? "show active" : ""}`}
                 id="pills-description"
                 role="tabpanel"
                 aria-labelledby="pills-description-tab"
                 tabIndex={0}
               >
                 {item?.wl_description_html ? (
-                  <div 
-                    dangerouslySetInnerHTML={{
-                      __html: item.wl_description_html,
-                    }}
-                  />
+                  <div dangerouslySetInnerHTML={{ __html: item.wl_description_html }} />
                 ) : (
                   <>
                     <p className="mt-3">
-                      Desenvolvemos soluções LED com foco em eficiência,
-                      longevidade e qualidade de imagem.
+                      Desenvolvemos soluções LED com foco em eficiência, longevidade e qualidade de imagem.
                     </p>
-                    <p>
-                      A Waveled acompanha consultoria, projeto, instalação e
-                      suporte.
-                    </p>
+                    <p>A Waveled acompanha consultoria, projeto, instalação e suporte.</p>
                   </>
                 )}
-              </div>
-
-              <div
-                className={`tab-pane fade ${
-                  activeTab === "specification" ? "show active" : ""
-                }`}
-                id="pills-specification"
-                role="tabpanel"
-                aria-labelledby="pills-specification-tab"
-                tabIndex={0}
-              >
-                {item?.wl_specs_text ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: item.wl_specs_text }}
-                  />
-                ) : (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <ul>{/* specs esquerdas */}</ul>
-                    </div>
-                    <div className="col-md-6">
-                      <ul>{/* specs direitas */}</ul>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div
-                className={`tab-pane fade ${
-                  activeTab === "downloads" ? "show active" : ""
-                }`}
-                id="pills-downloads"
-                role="tabpanel"
-                aria-labelledby="pills-downloads-tab"
-                tabIndex={0}
-              >
-                <div className="d-flex flex-wrap gap-3 mt-3">
-                  {Array.isArray(item?.wl_downloads) &&
-                  item.wl_downloads.length > 0 ? (
-                    item.wl_downloads.map((d, i) => (
-                      <a
-                        key={i}
-                        className="tekup-default-btn"
-                        href={
-                          isAbsoluteUrl(d?.url)
-                            ? d.url
-                            : `${IMG_HOST}${d?.url || ""}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {safeText(d?.label, `Download ${i + 1}`)}
-                      </a>
-                    ))
-                  ) : (
-                    <>
-                      <a
-                        className="tekup-default-btn"
-                        href="#"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        Download Datasheet
-                      </a>
-                      <a
-                        className="tekup-default-btn"
-                        href="#"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        Manual de Instalação
-                      </a>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-
-      {/* BLOCOS ADICIONAIS (restantes exemplos) — só se houver examplesRest */}
+      {/* BLOCOS ADICIONAIS (restantes exemplos) */}
       {examplesRest.length > 0 && (
-        <> 
-          <section className="mt-4 bg-black product-details-slider-solution">
-            <div className="section tekup-section-padding">
-              <div className="container">
-                <hr />
+        <section className="mt-4 bg-black product-details-slider-solution">
+          <div className="section tekup-section-padding">
+            <div className="container">
+              <hr />
+              <br />
+              <div className="col">
+                <div className="d-flex col justify-content-between">
+                  <div>
+                    <h3 className="text-light mt-4">Indústrias e Soluções Aplicáveis</h3>
+                  </div>
+                  <div style={{ maxWidth: "550px" }}>
+                    <p className="text-silver mt-2">{shortDescription}</p>
+                  </div>
+                </div>
                 <br />
-                <div className="col">
-                  <div className="d-flex col justify-content-between">
-                    <div>
-                      <h3 className="text-light mt-4">
-                        Indústrias e Soluções Aplicáveis
-                      </h3>
-                    </div>
-                    <div style={{ maxWidth: "550px" }}>
-                      <p className="text-silver mt-2">{shortDescription}</p>
-                    </div>
-                  </div>
-                  <br />
-                  <div className="row single-portofolio-area">
-                    {examplesRest.map((ex, index) => {
-                      const img = withHost(ex?.image);
-                      const exTitle = safeText(ex?.title, "Exemplo");
-                      if (!img) return null;
-                      return (
-                        <article key={index} className="col-md-3 mb-3">
-                          <img
-                            src={img.startsWith("http") ? img : API_BASE + img}
-                            alt={exTitle}
-                            style={{
-                              width: "100%",
-                              borderRadius: 8,
-                              objectFit: "cover",
-                              cursor: "zoom-in",
-                            }}
-                            role="button"
-                            title="Ver em ecrã inteiro"
-                            onClick={() => openExamplesLightbox(index)}
-                          />
-                          <strong className="text-silver d-block mt-2">
-                            {exTitle}
-                          </strong>
-                        </article>
-                      );
-                    })}
-                  </div>
+                <div className="row single-portofolio-area">
+                  {examplesRest.map((ex, index) => {
+                    const img = withHost(ex?.image);
+                    const exTitle = safeText(ex?.title, "Exemplo");
+                    if (!img) return null;
+                    return (
+                      <article key={index} className="col-md-3 mb-3">
+                        <img
+                          src={img.startsWith("http") ? img : API_BASE + img}
+                          alt={exTitle}
+                          style={{
+                            width: "100%",
+                            borderRadius: 8,
+                            objectFit: "cover",
+                            cursor: "zoom-in",
+                          }}
+                          role="button"
+                          title="Ver em ecrã inteiro"
+                          onClick={() => openExamplesLightbox(index)}
+                        />
+                        <strong className="text-silver d-block mt-2">{exTitle}</strong>
+                      </article>
+                    );
+                  })}
                 </div>
               </div>
             </div>
-          </section>
-        </>
+          </div>
+        </section>
       )}
 
- 
-  <br /><br />
+      <br />
+      <br />
+
       {/* PRODUTOS RELACIONADOS */}
       <div className="tekup-related-product-section pb-2">
         <div className="container">
@@ -1181,7 +979,6 @@ export default function SingleShopSection() {
                   ? withHost(p.wl_images[0])
                   : withHost(p?.wl_cover);
               const pTitle = truncate(safeText(p?.wl_name, "Produto"));
-              const pSku = safeText(p?.wl_sku, "—");
               const pCat = p?.wl_category?.wl_name;
 
               return (
@@ -1189,26 +986,17 @@ export default function SingleShopSection() {
                   <div className="tekup-shop-wrap">
                     <div className="tekup-shop-thumb">
                       <Link href={`/single-shop?product=${p._id}`}>
-                        <img
-                          style={{ height: "300px", objectFit: "contain" }}
-                          src={cover}
-                          alt={pTitle}
-                        />
+                        <img style={{ height: "300px", objectFit: "contain" }} src={cover} alt={pTitle} />
                       </Link>
-                      <Link
-                        className="tekup-shop-btn"
-                        href={`/single-shop?product=${p._id}`}
-                      >
+                      <Link className="tekup-shop-btn" href={`/single-shop?product=${p._id}`}>
                         Saiba Mais
                       </Link>
                     </div>
                     <div className="tekup-shop-data">
                       <Link href={`/single-shop?product=${p._id}`}>
                         <h5 title={p?.wl_name || ""}>{pTitle}</h5>
-                      </Link> 
-                      {pCat && (
-                        <small className="text-muted">Categoria: {pCat}</small>
-                      )}
+                      </Link>
+                      {pCat && <small className="text-muted">Categoria: {pCat}</small>}
                     </div>
                   </div>
                 </div>
@@ -1217,32 +1005,28 @@ export default function SingleShopSection() {
 
             {related.length === 0 && (
               <div className="col-12">
-                <p className="text-muted">
-                  Sem produtos relacionados para apresentar.
-                </p>
+                <p className="text-muted">Sem produtos relacionados para apresentar.</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Lightbox da galeria principal do produto */}
-      {lbOpenProduct && (
-        <Lightbox
-          images={lbImagesProduct}
-          startIndex={lbIndexProduct}
-          onClose={() => setLbOpenProduct(false)}
-        />
-      )}
+      {/* Lightbox da galeria principal do produto (YARL) */}
+      <Lightbox
+        open={lbOpenProduct}
+        close={() => setLbOpenProduct(false)}
+        index={lbIndexProduct}
+        slides={lbSlidesProduct}
+      />
 
-      {/* Lightbox dos exemplos (grelha) */}
-      {lbOpenExamples && (
-        <Lightbox
-          images={lbImagesExamples}
-          startIndex={lbIndexExamples}
-          onClose={() => setLbOpenExamples(false)}
-        />
-      )}
+      {/* Lightbox dos exemplos (YARL) */}
+      <Lightbox
+        open={lbOpenExamples}
+        close={() => setLbOpenExamples(false)}
+        index={lbIndexExamples}
+        slides={lbSlidesExamples}
+      />
     </>
   );
 }

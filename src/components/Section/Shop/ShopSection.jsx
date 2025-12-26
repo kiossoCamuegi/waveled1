@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Slider from "react-slick/lib/slider";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -41,6 +41,7 @@ function FiveSolutionsSlider({ items }) {
             </p>
           </div>
         </div>
+
         <Slider {...Settings}>
           {items.map((item, index) => (
             <article key={index}>
@@ -49,10 +50,14 @@ function FiveSolutionsSlider({ items }) {
                   <img src={item.image} alt={item.title} />
                 </div>
                 <strong className="text-light">{item.title}</strong>
+
                 <Link href={item.link}>
-                  <button className="tekup-default-btn">Saiba mais</button>
+                  <button className="tekup-default-btn" type="button">
+                    Saiba mais
+                  </button>
                 </Link>
               </div>
+
               <br />
               <br />
               <br />
@@ -91,6 +96,7 @@ function MainItemCategoryPage({ item }) {
           ))}
         </Slider>
       </div>
+
       <div className="text-content">
         <h2>{item?.title}</h2>
         <p>{item?.description}</p>
@@ -98,8 +104,11 @@ function MainItemCategoryPage({ item }) {
           <hr />
         </div>
         <br />
+
         <Link href={item?.link}>
-          <button className="tekup-default-btn">Saiba mais</button>
+          <button className="tekup-default-btn" type="button">
+            Saiba mais
+          </button>
         </Link>
       </div>
     </div>
@@ -139,7 +148,9 @@ function CardSliderVertical({ item }) {
             <Link href={item?.link}>
               <h5>{item?.title}</h5>
             </Link>
-            <button className="bg-primary text-light">Saiba mais</button>
+            <button className="bg-primary text-light" type="button">
+              Saiba mais
+            </button>
           </div>
           <img src={item?.image} alt={item?.title} />
         </div>
@@ -155,7 +166,9 @@ function TwoNiceProducts({ items }) {
         <article key={index}>
           <img src={item?.image} alt={item.title} />
           <Link href={item?.link}>
-            <button className="tekup-default-btn">Saiba mais</button>
+            <button className="tekup-default-btn" type="button">
+              Saiba mais
+            </button>
           </Link>
         </article>
       ))}
@@ -183,15 +196,16 @@ function VideoSolutionsSlick() {
     setLbIndex(index);
     setLightboxOpen(true);
   };
-
   const closeLightbox = () => setLightboxOpen(false);
 
   const ytPoster = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-
-  // ✅ vídeo (sem cookies + autoplay)
   const ytEmbed = (id) =>
     `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
 
+  // ✅ REF do slider
+  const sliderRef = useRef(null);
+
+  // ✅ settings SEM foco automático (isso é o que costuma causar o scroll)
   const settings = {
     dots: true,
     arrows: true,
@@ -200,7 +214,11 @@ function VideoSolutionsSlick() {
     centerMode: true,
     slidesToShow: 3,
     slidesToScroll: 1,
-    focusOnSelect: true,
+
+    // 🔥 importantes para NÃO puxar scroll
+    accessibility: false,
+    focusOnSelect: false,
+
     afterChange: (i) => setActiveSlide(i),
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 2 } },
@@ -208,11 +226,22 @@ function VideoSolutionsSlick() {
     ],
   };
 
-  // ✅ click automático no next após 1.5s
+  // ✅ avança 1 slide após 1.5s, sem scroll (restaura scroll + blur no foco)
   useEffect(() => {
     const t = setTimeout(() => {
-      const btn = document.querySelector(".categorie-videos.vs-wrap .slick-next");
-      if (btn && typeof btn.click === "function") btn.click();
+      const y = window.scrollY;
+
+      sliderRef.current?.slickNext?.();
+
+      // tira foco de qualquer coisa que o slick tenha focado
+      if (document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+
+      // restaura scroll (caso algum scroll-into-view tenha acontecido)
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: y, left: 0, behavior: "auto" });
+      });
     }, 1500);
 
     return () => clearTimeout(t);
@@ -244,10 +273,14 @@ function VideoSolutionsSlick() {
       </header>
       <br />
 
-      <Slider {...settings} className="vs-slider">
+      <Slider ref={sliderRef} {...settings} className="vs-slider">
         {videos.map((v, i) => (
           <div key={v.id}>
-            <button className={`vs-card ${activeSlide === i ? "active" : ""}`} onClick={() => openLightbox(i)}>
+            <button
+              className={`vs-card ${activeSlide === i ? "active" : ""}`}
+              onClick={() => openLightbox(i)}
+              type="button"
+            >
               <div className="vs-thumb">
                 <img src={ytPoster(v.id)} alt={v.title} />
                 <div className="vs-over">
@@ -267,7 +300,6 @@ function VideoSolutionsSlick() {
         ))}
       </Slider>
 
-      {/* ✅ MODAL TRANSPARENTE (sem caixa / sem controles) */}
       {lightboxOpen && (
         <div
           className="vs-modal"
@@ -275,16 +307,13 @@ function VideoSolutionsSlick() {
           aria-modal="true"
           aria-label="Vídeo"
           onMouseDown={(e) => {
-            // fecha ao clicar no backdrop
             if (e.target === e.currentTarget) closeLightbox();
           }}
         >
-          {/* botão close sempre acima do iframe */}
-          <button className="vs-close" onClick={closeLightbox} aria-label="Fechar vídeo" title="Fechar">
+          <button className="vs-close" onClick={closeLightbox} aria-label="Fechar vídeo" title="Fechar" type="button">
             ✕
           </button>
 
-          {/* Só o vídeo, sem “card” colorido */}
           <div className="vs-video" onMouseDown={(e) => e.stopPropagation()}>
             <iframe
               key={videos[lbIndex].id}
@@ -384,7 +413,6 @@ function VideoSolutionsSlick() {
           opacity: 0.7;
         }
 
-        /* ✅ MODAL clean */
         .vs-modal {
           position: fixed;
           inset: 0;
@@ -396,7 +424,6 @@ function VideoSolutionsSlick() {
           padding: 18px;
         }
 
-        /* ✅ close flutuante, sempre clicável */
         .vs-close {
           position: fixed;
           top: 18px;
@@ -417,13 +444,12 @@ function VideoSolutionsSlick() {
           background: rgba(255, 255, 255, 0.22);
         }
 
-        /* ✅ sem “card”: só o vídeo */
         .vs-video {
           width: min(1100px, 100%);
           aspect-ratio: 16/9;
           border-radius: 16px;
           overflow: hidden;
-          background: transparent; /* sem cor */
+          background: transparent;
           box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
         }
 
@@ -432,7 +458,7 @@ function VideoSolutionsSlick() {
           height: 100%;
           border: none;
           display: block;
-          background: #000; /* o player em si */
+          background: #000;
         }
 
         @media (max-width: 720px) {
@@ -459,7 +485,9 @@ function MoreProducts({ items }) {
               <img src={item?.image} alt="" />
               <div className="over-image">
                 <Link href={item?.link}>
-                  <button className="tekup-default-btn">Saiba mais</button>
+                  <button className="tekup-default-btn" type="button">
+                    Saiba mais
+                  </button>
                 </Link>
               </div>
             </div>
@@ -536,6 +564,7 @@ function ShopSection() {
       <br />
       <br />
       <br />
+
       <div className="container">
         <HeaderCategorieAndTitle
           title={"Venda, aluguer e montagem de ecrãs LED"}
@@ -547,6 +576,7 @@ function ShopSection() {
           ]}
           active={""}
         />
+
         <aside className="card-slides-vertical">
           <Slider {...VerticalSliderSettings}>
             {VerticalSolutionsItems.map((item, index) => (
@@ -554,6 +584,7 @@ function ShopSection() {
             ))}
           </Slider>
         </aside>
+
         <aside>
           <MainItemCategoryPage item={MainItemData} />
         </aside>

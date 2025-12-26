@@ -2,13 +2,17 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
-import Lightbox from "react-awesome-lightbox";
-import "react-awesome-lightbox/build/style.css";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 // Base para API e imagens
 const isBrowser = typeof window !== "undefined";
-const protocol = isBrowser && window.location.protocol === "https:" ? "https" : "http";
-const API_BASE = protocol === "https"  ?  'https://waveledserver1.vercel.app' : "http://localhost:4000";
+const protocol =
+  isBrowser && window.location.protocol === "https:" ? "https" : "http";
+const API_BASE =
+  protocol === "https"
+    ? "https://waveledserver1.vercel.app"
+    : "http://localhost:4000";
 
 // Prefixa host se a URL for relativa
 const withHost = (u) => {
@@ -34,7 +38,7 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  // Lightbox
+  // Lightbox (YARL)
   const [lbIndex, setLbIndex] = useState(-1);
   const isOpen = lbIndex >= 0;
 
@@ -71,11 +75,11 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
     fetchExamples();
   }, [fetchExamples]);
 
-  // Imagens para o lightbox (na mesma ordem de "items")
-  const lightboxImages = useMemo(
+  // Slides para o lightbox (na mesma ordem de "items")
+  const lightboxSlides = useMemo(
     () =>
       items.map((it) => ({
-        url: it.image,
+        src: it.image,
         title: it.title + (it.description ? ` — ${it.description}` : ""),
       })),
     [items]
@@ -87,10 +91,10 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
   const idxDoubleB = 2;
   const idxVertical = 3;
 
-  // Restantes imagens depois das 4 primeiras (large + double(2) + vertical)
+  // Restantes imagens depois das 4 primeiras
   const rest = items.slice(4);
 
-  // Máximo de 3 grupos "tripple-box" => no máximo 9 imagens extra
+  // Máximo de 1 grupo "tripple-box" (como no teu código)
   const tripleChunks = useMemo(() => chunk3(rest).slice(0, 1), [rest]);
 
   return (
@@ -114,7 +118,9 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
               </div>
               <div className="over-box">
                 <h5>{items[idxLarge].title}</h5>
-                {items[idxLarge].description && <small className="d-none">{items[idxLarge].description}</small>}
+                {items[idxLarge].description && (
+                  <small className="d-none">{items[idxLarge].description}</small>
+                )}
               </div>
             </div>
           )}
@@ -133,10 +139,13 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
                   </div>
                   <div className="over-box">
                     <h5>{items[idxDoubleA].title}</h5>
-                    {items[idxDoubleA].description && <small className="d-none">{items[idxDoubleA].description}</small>}
+                    {items[idxDoubleA].description && (
+                      <small className="d-none">{items[idxDoubleA].description}</small>
+                    )}
                   </div>
                 </div>
               )}
+
               {items[idxDoubleB] && (
                 <div
                   className="box sm-box box-img"
@@ -148,7 +157,9 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
                   </div>
                   <div className="over-box">
                     <h5>{items[idxDoubleB].title}</h5>
-                    {items[idxDoubleB].description && <small className="d-none">{items[idxDoubleB].description}</small>}
+                    {items[idxDoubleB].description && (
+                      <small className="d-none">{items[idxDoubleB].description}</small>
+                    )}
                   </div>
                 </div>
               )}
@@ -168,17 +179,18 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
                 </div>
                 <div className="over-box">
                   <h5>{items[idxVertical].title}</h5>
-                  {items[idxVertical].description && <small className="d-none">{items[idxVertical].description}</small>}
+                  {items[idxVertical].description && (
+                    <small className="d-none">{items[idxVertical].description}</small>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* tripple-box (até 3 grupos) */}
+          {/* tripple-box */}
           {tripleChunks.map((chunk, cIdx) => (
             <div className="tripple-box" key={`tripple-${cIdx}`}>
               {chunk.map((it, i) => {
-                // índice REAL no array items: 4 + deslocamento do grupo + posição no grupo
                 const realIndex = 4 + cIdx * 3 + i;
                 return (
                   <div
@@ -202,17 +214,13 @@ function CategoryGridGalery({ categoryId = null, productId = null, productCode =
         </div>
       )}
 
-      {/* Lightbox */}
-      {isOpen && (
-        <Lightbox
-          images={items.map((it) => ({
-            url: it.image,
-            title: it.title + (it.description ? ` — ${it.description}` : ""),
-          }))}
-          startIndex={lbIndex}
-          onClose={() => setLbIndex(-1)}
-        />
-      )}
+      {/* Lightbox global (YARL) */}
+      <Lightbox
+        open={isOpen}
+        close={() => setLbIndex(-1)}
+        index={Math.max(lbIndex, 0)}
+        slides={lightboxSlides}
+      />
     </aside>
   );
 }
