@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo, useRef, useState } from "react";  
-import axios from "axios";   
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 import Slider from "react-slick/lib/slider";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -130,7 +130,8 @@ function HeaderCategorieAndTitle({ title, categories, active }) {
         <ul>
           {categories.map((item, index) => (
             <Link href={item?.link} key={index}>
-              <li className={`link-badge ${item?.title === "Retalho" ? "active" : ""}`}>
+              {/* ✅ FIX: usa active correto */}
+              <li className={`link-badge ${item?.id === active ? "active" : ""}`}>
                 {item?.title}
               </li>
             </Link>
@@ -202,12 +203,11 @@ function VideoSolutionsSlick() {
   const closeLightbox = () => setLightboxOpen(false);
 
   const ytPoster = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-  const ytEmbed = (id) =>  `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+  const ytEmbed = (id) =>
+    `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
 
-  //  REF do slider
   const sliderRef = useRef(null);
 
-  //  settings SEM foco automático (isso é o que costuma causar o scroll)
   const settings = {
     dots: true,
     arrows: true,
@@ -216,11 +216,8 @@ function VideoSolutionsSlick() {
     centerMode: true,
     slidesToShow: 3,
     slidesToScroll: 1,
-
-    //   importantes para NÃO puxar scroll
     accessibility: false,
     focusOnSelect: false,
-
     afterChange: (i) => setActiveSlide(i),
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 2 } },
@@ -228,19 +225,15 @@ function VideoSolutionsSlick() {
     ],
   };
 
-  //  avança 1 slide após 1.5s, sem scroll (restaura scroll + blur no foco)
   useEffect(() => {
     const t = setTimeout(() => {
       const y = window.scrollY;
-
       sliderRef.current?.slickNext?.();
 
-      // tira foco de qualquer coisa que o slick tenha focado
       if (document.activeElement && typeof document.activeElement.blur === "function") {
         document.activeElement.blur();
       }
 
-      // restaura scroll (caso algum scroll-into-view tenha acontecido)
       requestAnimationFrame(() => {
         window.scrollTo({ top: y, left: 0, behavior: "auto" });
       });
@@ -249,7 +242,6 @@ function VideoSolutionsSlick() {
     return () => clearTimeout(t);
   }, []);
 
-  //  ESC fecha + trava scroll
   useEffect(() => {
     if (!lightboxOpen) return;
 
@@ -312,7 +304,13 @@ function VideoSolutionsSlick() {
             if (e.target === e.currentTarget) closeLightbox();
           }}
         >
-          <button className="vs-close" onClick={closeLightbox} aria-label="Fechar vídeo" title="Fechar" type="button">
+          <button
+            className="vs-close"
+            onClick={closeLightbox}
+            aria-label="Fechar vídeo"
+            title="Fechar"
+            type="button"
+          >
             ✕
           </button>
 
@@ -334,20 +332,16 @@ function VideoSolutionsSlick() {
           background: #f2f3fc;
           margin: 50px 0px;
         }
-
         .vs-header {
           text-align: center;
           margin-bottom: 30px;
         }
-
         .vs-header h2 {
           margin: 10px 0 4px;
         }
-
         .vs-header p {
           opacity: 0.7;
         }
-
         .vs-card {
           border: none;
           background: transparent;
@@ -356,24 +350,20 @@ function VideoSolutionsSlick() {
           transform: scale(0.9);
           transition: transform 0.3s ease;
         }
-
         .vs-card.active {
           transform: scale(1);
         }
-
         .vs-thumb {
           position: relative;
           border-radius: 18px;
           overflow: hidden;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
-
         .vs-thumb img {
           width: 100%;
           aspect-ratio: 16/9;
           object-fit: cover;
         }
-
         .vs-over {
           position: absolute;
           inset: 0;
@@ -381,7 +371,6 @@ function VideoSolutionsSlick() {
           align-items: center;
           justify-content: center;
         }
-
         .vs-play {
           width: 60px;
           height: 60px;
@@ -392,7 +381,6 @@ function VideoSolutionsSlick() {
           justify-content: center;
           color: #fff;
         }
-
         .vs-tag {
           position: absolute;
           top: 12px;
@@ -401,20 +389,16 @@ function VideoSolutionsSlick() {
           padding: 6px 10px;
           border-radius: 999px;
         }
-
         .vs-info {
           margin-top: 12px;
           text-align: left;
         }
-
         .vs-info strong {
           display: block;
         }
-
         .vs-info span {
           opacity: 0.7;
         }
-
         .vs-modal {
           position: fixed;
           inset: 0;
@@ -425,7 +409,6 @@ function VideoSolutionsSlick() {
           justify-content: center;
           padding: 18px;
         }
-
         .vs-close {
           position: fixed;
           top: 18px;
@@ -445,7 +428,6 @@ function VideoSolutionsSlick() {
         .vs-close:hover {
           background: rgba(255, 255, 255, 0.22);
         }
-
         .vs-video {
           width: min(1100px, 100%);
           aspect-ratio: 16/9;
@@ -454,7 +436,6 @@ function VideoSolutionsSlick() {
           background: transparent;
           box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
         }
-
         .vs-video iframe {
           width: 100%;
           height: 100%;
@@ -462,7 +443,6 @@ function VideoSolutionsSlick() {
           display: block;
           background: #000;
         }
-
         @media (max-width: 720px) {
           .vs-close {
             top: 12px;
@@ -500,34 +480,21 @@ function MoreProducts({ items }) {
         ))}
       </div>
     </div>
-  ); 
+  );
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default function ShopSection() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("category");
 
   const isBrowser = typeof window !== "undefined";
-  const protocol =  isBrowser && window.location.protocol === "https:" ? "https" : "http";
-  const API_BASE = protocol === "https"  ? "https://waveledserver1.vercel.app"   : "http://localhost:4000";
+  const protocol = isBrowser && window.location.protocol === "https:" ? "https" : "http";
+  const API_BASE = protocol === "https" ? "https://waveledserver1.vercel.app" : "http://localhost:4000";
 
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(null);
   const [categories, setCategories] = useState([]);
 
-  // SLIDER SETTINGS
   const verticalSliderSettings = {
     dots: true,
     infinite: false,
@@ -542,34 +509,48 @@ export default function ShopSection() {
     ],
   };
 
-  // LOAD PAGE BY CATEGORY
   useEffect(() => {
-    if (!categoryId) return;
+    // ✅ FIX: se não houver category, não fica preso em loading
+    if (!categoryId) {
+      setLoading(false);
+      setPage(null);
+      return;
+    }
 
     const load = async () => {
       setLoading(true);
       try {
         const [pageRes, catsRes] = await Promise.all([
-          axios.get(API_BASE+`/api/cms/category-pages/${categoryId}`),
-          axios.get(API_BASE+`/api/categories`), 
+          axios.get(API_BASE + `/api/cms/category-pages/${categoryId}`),
+          axios.get(API_BASE + `/api/categories`),
         ]);
 
         setPage(pageRes.data?.data || null);
         setCategories(catsRes.data?.data || []);
       } catch (e) {
         console.error("Erro ao carregar categoria", e);
+        setPage(null);
       } finally {
         setLoading(false);
       }
     };
 
     load();
-  }, [categoryId]);
+  }, [categoryId, API_BASE]);
 
   if (loading) {
     return (
       <div className="container py-5 text-center">
         <p>A carregar categoria…</p>
+      </div>
+    );
+  }
+
+  // ✅ Mensagem quando não vem query param
+  if (!categoryId) {
+    return (
+      <div className="container py-5 text-center">
+        <p>Escolhe uma categoria para ver os produtos.</p>
       </div>
     );
   }
@@ -581,10 +562,6 @@ export default function ShopSection() {
       </div>
     );
   }
-
-  /* ======================
-   * MAPS DE DADOS
-   * ====================== */
 
   const topVerticalSolutions =
     page.top_solutions?.map((x) => ({
@@ -621,15 +598,9 @@ export default function ShopSection() {
       link: x.solution?.wl_product?.wl_link || "#",
     })) || [];
 
-  /* ======================
-   * RENDER
-   * ====================== */
-
   return (
     <div className="categorie-page">
       <div className="container">
-
-        {/* HEADER + CATEGORIES */}
         <HeaderCategorieAndTitle
           title={page.wl_category?.wl_name || ""}
           categories={categories.map((c) => ({
@@ -640,7 +611,6 @@ export default function ShopSection() {
           active={categoryId}
         />
 
-        {/* TOP VERTICAL SOLUTIONS */}
         {topVerticalSolutions.length > 0 && (
           <aside className="card-slides-vertical">
             <Slider {...verticalSliderSettings}>
@@ -651,7 +621,6 @@ export default function ShopSection() {
           </aside>
         )}
 
-        {/* MAIN ITEM */}
         {mainItem.images?.length > 0 && (
           <aside>
             <MainItemCategoryPage item={mainItem} />
@@ -659,14 +628,12 @@ export default function ShopSection() {
         )}
       </div>
 
-      {/* FIVE SOLUTIONS SLIDER */}
       {sliderSolutions.length > 0 && (
         <aside>
           <FiveSolutionsSlider items={sliderSolutions} />
         </aside>
       )}
 
-      {/* TWO SPECIAL PRODUCTS */}
       {twoSpecial.length > 0 && (
         <div className="container">
           <aside>
@@ -675,12 +642,10 @@ export default function ShopSection() {
         </div>
       )}
 
-      {/* VIDEOS */}
       <aside>
         <VideoSolutionsSlick />
       </aside>
 
-      {/* MOST USED */}
       {mostUsed.length > 0 && (
         <div className="container">
           <aside>
