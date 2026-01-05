@@ -9,18 +9,13 @@ export default function ProductMegaMenu() {
   const router = useRouter();
 
   const isBrowser = typeof window !== "undefined";
-  const protocol =
-    isBrowser && window.location.protocol === "https:" ? "https" : "http";
+  const protocol = isBrowser && window.location.protocol === "https:" ? "https" : "http";
 
   const API_BASE =
-    protocol === "https"
-      ? "https://waveledserver1.vercel.app"
-      : "http://localhost:4000";
+    protocol === "https" ? "https://waveledserver1.vercel.app" : "http://localhost:4000";
 
   const IMG_HOST =
-    protocol === "https"
-      ? "https://waveledserver1.vercel.app"
-      : "http://localhost:4000";
+    protocol === "https" ? "https://waveledserver1.vercel.app" : "http://localhost:4000";
 
   function normalizeImg(src) {
     if (!src) return "";
@@ -129,9 +124,7 @@ export default function ProductMegaMenu() {
     async function loadSlider() {
       setSliderLoading(true);
       try {
-        const data = await fetchJson(
-          `${API_BASE}/api/cms/vertical-solutions?featured=1`
-        );
+        const data = await fetchJson(`${API_BASE}/api/cms/vertical-solutions?featured=1`);
 
         const list = (data?.data || []).map((x) => ({
           title: x?.wl_title || "Solução",
@@ -273,9 +266,7 @@ export default function ProductMegaMenu() {
     async function loadProductsByCategory() {
       setProductsLoading(true);
       try {
-        const url = `${API_BASE}/api/products?category=${encodeURIComponent(
-          activeTab
-        )}`;
+        const url = `${API_BASE}/api/products?category=${encodeURIComponent(activeTab)}`;
         const data = await fetchJson(url);
         if (alive) setProducts(data?.data || []);
       } catch {
@@ -446,6 +437,68 @@ export default function ProductMegaMenu() {
     (products && products.length > 0) ||
     (sliderItems && sliderItems.length > 0);
 
+  // =========================
+  // ✅ FIX: igualar altura do LEFT com RIGHT (sem espaço branco)
+  // =========================
+  const rightRef = useRef(null);
+  const [matchHeight, setMatchHeight] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (!isBrowser) return;
+
+    const calcMobile = () => setIsMobile(window.innerWidth <= 991.98);
+    calcMobile();
+    window.addEventListener("resize", calcMobile);
+    return () => window.removeEventListener("resize", calcMobile);
+  }, [isBrowser]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const measure = () => {
+      if (isMobile) {
+        setMatchHeight(0);
+        return;
+      }
+      const rh = rightRef.current?.offsetHeight || 0;
+      if (rh > 0) setMatchHeight(rh);
+    };
+
+    // mede já
+    requestAnimationFrame(measure);
+
+    // observa mudanças (tabs/produtos/imagens/scrollbars)
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => requestAnimationFrame(measure));
+      if (rightRef.current) ro.observe(rightRef.current);
+    }
+
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      if (ro) ro.disconnect();
+    };
+  }, [
+    open,
+    isMobile,
+    activeTab,
+    tabsLoading,
+    productsLoading,
+    visibleProducts.length,
+    showAll,
+    sliderLoading,
+    sliderItems.length,
+  ]);
+
+  // Também força medir quando a imagem do slider carrega (evita “jump”)
+  function onSliderImgLoad() {
+    if (isMobile) return;
+    const rh = rightRef.current?.offsetHeight || 0;
+    if (rh > 0) setMatchHeight(rh);
+  }
+
   return (
     <div className="wl-mega-root">
       <div
@@ -486,7 +539,11 @@ export default function ProductMegaMenu() {
       >
         <div className={`wl-mega-inner ${hasMenuContent ? "has-content" : ""}`}>
           <div className="content-box">
-            <div className="content-slide">
+            {/* ✅ aplica altura medida ao LEFT */}
+            <div
+              className="content-slide"
+              style={!isMobile && matchHeight ? { height: matchHeight } : undefined}
+            >
               <div
                 className="wl-slider"
                 onMouseEnter={() => setPause(true)}
@@ -499,6 +556,7 @@ export default function ProductMegaMenu() {
                       alt={current.title}
                       className="wl-slide-img"
                       loading="eager"
+                      onLoad={onSliderImgLoad}
                     />
                   ) : null}
 
@@ -525,10 +583,7 @@ export default function ProductMegaMenu() {
                       </button>
 
                       <div className="wl-dots" aria-label="Paginação">
-                        {(sliderLoading
-                          ? Array.from({ length: 5 })
-                          : sliderItems
-                        ).map((_, i) => (
+                        {(sliderLoading ? Array.from({ length: 5 }) : sliderItems).map((_, i) => (
                           <button
                             key={i}
                             type="button"
@@ -545,12 +600,12 @@ export default function ProductMegaMenu() {
               </div>
             </div>
 
-            <div className="wl-right">
+            {/* ✅ ref no RIGHT para medir altura */}
+            <div className="wl-right" ref={rightRef}>
               <div className="space-div">
                 <div>
                   <h5 className="wl-heading">
-                    Produtos <FaLongArrowAltRight />{" "}
-                    {active?.heading || "Categorias"}
+                    Produtos <FaLongArrowAltRight /> {active?.heading || "Categorias"}
                   </h5>
                 </div>
 
@@ -590,9 +645,7 @@ export default function ProductMegaMenu() {
                       <button
                         key={t.key}
                         type="button"
-                        className={`wl-tab ${
-                          activeTab === t.key ? "active" : ""
-                        }`}
+                        className={`wl-tab ${activeTab === t.key ? "active" : ""}`}
                         onClick={() => setActiveTab(t.key)}
                         role="tab"
                         aria-selected={activeTab === t.key}
@@ -626,14 +679,12 @@ export default function ProductMegaMenu() {
               <div className="wl-body product-wrapper">
                 <div className="wl-wrap" ref={productWrapperRef}>
                   {productsLoading ? (
-                    Array.from({ length: Math.max(6, initialCount) }).map(
-                      (_, i) => (
-                        <article key={`sk-${i}`} className="wl-skeleton">
-                          <div className="image" />
-                          <small className="wl-prod-name"> </small>
-                        </article>
-                      )
-                    )
+                    Array.from({ length: Math.max(6, initialCount) }).map((_, i) => (
+                      <article key={`sk-${i}`} className="wl-skeleton">
+                        <div className="image" />
+                        <small className="wl-prod-name"> </small>
+                      </article>
+                    ))
                   ) : visibleProducts?.length ? (
                     visibleProducts.map((p) => {
                       const img = p?.wl_images?.[0] || "";
@@ -647,16 +698,10 @@ export default function ProductMegaMenu() {
                             title={name}
                           >
                             <div className="image">
-                              <img
-                                src={normalizeImg(img)}
-                                alt={name}
-                                loading="lazy"
-                              />
+                              <img src={normalizeImg(img)} alt={name} loading="lazy" />
                             </div>
                             <small className="wl-prod-name">
-                              {name.length > 40
-                                ? name.substring(0, 40) + "..."
-                                : name}
+                              {name.length > 40 ? name.substring(0, 40) + "..." : name}
                             </small>
                           </button>
                         </article>
@@ -672,11 +717,7 @@ export default function ProductMegaMenu() {
                 <div className="text-center">
                   <div className="view-all">
                     {showButton ? (
-                      <button
-                        type="button"
-                        className="see-more-btn"
-                        onClick={handleSeeMore}
-                      >
+                      <button type="button" className="see-more-btn" onClick={handleSeeMore}>
                         Ver todos
                       </button>
                     ) : null}
@@ -684,11 +725,7 @@ export default function ProductMegaMenu() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="wl-close d-lg-none"
-                onClick={closeNow}
-              >
+              <button type="button" className="wl-close d-lg-none" onClick={closeNow}>
                 Fechar
               </button>
             </div>
@@ -752,27 +789,25 @@ export default function ProductMegaMenu() {
           overflow: hidden;
         }
 
-        /* ✅ min-height do megamenu */
         .wl-mega-inner.has-content {
           min-height: 520px;
         }
 
-        /* ✅ IMPORTANTE: faz as colunas ficarem com a MESMA altura */
+        /* ✅ chave para evitar “gap” */
         .content-box {
           display: flex;
           width: 100%;
-          align-items: stretch; /* <- chave */
+          align-items: stretch;
         }
 
         .content-slide {
           flex: 0 0 auto;
-          display: flex; /* <- permite o slider esticar */
+          display: flex; /* deixa o slider esticar */
         }
 
-        /* ✅ LEFT SLIDER sempre com a mesma altura do container */
         .wl-slider {
           height: 100%;
-          min-height: 570px; /* <- igual ao min-height pedido */
+          min-height: 570px;
           min-width: 500px;
           max-width: 500px;
           display: flex;
@@ -781,8 +816,8 @@ export default function ProductMegaMenu() {
         .wl-slide-bg {
           position: relative;
           height: 100%;
-          min-height: 520px; /* <- garante mesma altura */
           width: 100%;
+          min-height: 520px;
           background: #0b0f18;
           overflow: hidden;
           display: flex;
@@ -873,8 +908,7 @@ export default function ProductMegaMenu() {
           border: 0;
           background: #fff;
           cursor: pointer;
-          transition: transform 0.15s ease, background 0.15s ease,
-            width 0.15s ease;
+          transition: transform 0.15s ease, background 0.15s ease, width 0.15s ease;
         }
 
         .wl-dot.active {
@@ -1080,7 +1114,11 @@ export default function ProductMegaMenu() {
             display: block;
           }
 
-          /* no mobile, o slider pode ser menor */
+          /* ✅ em mobile NÃO forçamos matchHeight */
+          .content-slide {
+            height: auto !important;
+          }
+
           .wl-slider {
             min-height: 300px;
             min-width: unset;
