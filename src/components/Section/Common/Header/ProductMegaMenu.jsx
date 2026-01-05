@@ -1,325 +1,87 @@
-
 "use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaLongArrowAltRight } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 export default function ProductMegaMenu() {
-  // ====== SLIDER (lado esquerdo) ======
-  const sliderItems = useMemo(
-    () => [
-      {
-        title: "Ecrãs LED com impacto real",
-        desc: "Soluções para retalho, publicidade, empresas e eventos.",
-        image:
-          "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-      },
-      {
-        title: "Montras Digitais Transparentes",
-        desc: "Conteúdo dinâmico sem perder visibilidade do produto.",
-        image: 
-          "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-      },
-      {
-        title: "Experiência em Loja (Retail)",
-        desc: "Promoções, lançamentos e branding com brilho e nitidez.",
-        image:
-          "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-      },
-      {
-        title: "Corporate & Apresentações",
-        desc: "Comunicação moderna para auditórios, receções e salas.",
-        image:
-          "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-      },
-      {
-        title: "Instalações Indoor/Outdoor",
-        desc: "Alta luminosidade, robustez e projetos personalizados.",
-        image:
-          "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-      },
-      {
-        title: "WaveLED — Produtos & Soluções",
-        desc: "Venda, montagem e aluguer com suporte técnico completo.",
-        image: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-      },
-    ],
-    []
-  );
+  const router = useRouter();
 
-  // ====== CATEGORIAS (tabs) ====== 
-  const tabs = useMemo(
-    () => [
-      {
-        key: "sinalizacao-digital",
-        label: "Sinalização Digital",
-        heading: "Sinalização Digital — Áreas de Aplicação",
-        hasIndustries: true,
-        industries: [
-          "Ecrã LED Interior",
-          "Ecrã LED Exterior",
-          "Ecrã LED Flexível", 
-          "Ecrã LED para Experiência Imersiva",
-          "Ecrã LED Transparente para Montras Digitais",
-          "Ecrã LED Amovível Modular", 
-        ],
-        featured: [
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-            tag: "Montras Digitais",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-            tag: "Retail",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-            tag: "Campanhas",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-            tag: "Corporate",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-            tag: "Instalações",
-          },
-          {
-            img: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-            tag: "Produtos",
-          },
-        ],
-      },
- 
-      {
-        key: "oled-transparente",
-        label: "Ecrã OLED Transparente",
-        heading: "OLED Transparente",
-        hasIndustries: true,
-        industries: [
-          "Ecrã LED Interior",
-          "Ecrã LED Exterior",
-          "Ecrã LED Flexível",
-          "Centros de saude",
-          "Ecrã LED para Experiência Imersiva",
-          "Hotelaria",
-          "Mobiliarias",
-          "Educação",
-          "Estações de metro", 
-        ],
-        featured: [
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-            tag: "OLED",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-            tag: "Retail",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-            tag: "Experiência",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-            tag: "Corporate",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-            tag: "Instalações",
-          },
-          {
-            img: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-            tag: "WaveLED",
-          },
-        ],
-      },
-      {
-        key: "quiosque-digital",
-        label: "Quiosque Digital",
-        heading: "Quiosque Digital",
-        hasIndustries: true,
-         industries: [
-          "Ecrã LED Interior",
-          "Ecrã LED Exterior",
-          "Ecrã LED Flexível",
-          "Centros de saude",
-          "Ecrã LED para Experiência Imersiva",
-          "Hotelaria",
-          "Mobiliarias",
-          "Educação",
-          "Estações de metro",  
-        ],
-        featured: [
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-            tag: "Quiosques",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-            tag: "Retail",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-            tag: "Montras",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-            tag: "Conteúdo",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-            tag: "Instalações",
-          },
-          {
-            img: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-            tag: "WaveLED",
-          },
-        ],
-      },
-      {
-        key: "prateleira-digital",
-        label: "Prateleira Digital",
-        heading: "Prateleira Digital",
-        hasIndustries: true,
-         industries: [
-          "Ecrã LED Interior",
-          "Ecrã LED Exterior",
-          "Ecrã LED Flexível",
-          "Centros de saude",
-          "Ecrã LED para Experiência Imersiva",
-          "Hotelaria",
-          "Mobiliarias", 
-        ],
-        featured: [
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-            tag: "Prateleiras",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-            tag: "Preço/Info",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-            tag: "Retail",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-            tag: "Campanhas",
-          },
-          {
-            img: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-            tag: "Corporate",
-          },
-          {
-            img: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-            tag: "WaveLED",
-          },
-        ],
-      }, 
-    ],
-    []
-  );
+  const isBrowser = typeof window !== "undefined";
+  const protocol =
+    isBrowser && window.location.protocol === "https:" ? "https" : "http";
 
-  // ====== ESTADO MENU ======
+  const API_BASE =
+    protocol === "https"
+      ? "https://waveledserver1.vercel.app"
+      : "http://localhost:4000";
+
+  const IMG_HOST =
+    protocol === "https"
+      ? "https://waveledserver1.vercel.app"
+      : "http://localhost:4000";
+
+  function normalizeImg(src) {
+    if (!src) return "";
+    const s = String(src);
+    if (s.startsWith("http://") || s.startsWith("https://")) return s;
+    return `${IMG_HOST}${s.startsWith("/") ? "" : "/"}${s}`;
+  }
+
+  async function fetchJson(url) {
+    const r = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data?.error || "Falha ao carregar");
+    return data;
+  }
+
   const [open, setOpen] = useState(false);
   const triggerRef = useRef(null);
   const menuRef = useRef(null);
   const closeTimerRef = useRef(null);
 
-  // ====== SLIDER ======
-  const [idx, setIdx] = useState(0);
-  const [pause, setPause] = useState(false);
-
-  // ====== TAB / ACTIVE ======
-  const [activeTab, setActiveTab] = useState(tabs[0]?.key || "sinalizacao-digital");
-  const active = useMemo(
-    () => tabs.find((t) => t.key === activeTab) || tabs[0],
-    [tabs, activeTab]
-  );
-
-  // ====== INDUSTRY (só para sinalização digital) ======
-  const [activeIndustry, setActiveIndustry] = useState("");
-  useEffect(() => {
-    if (active?.hasIndustries) {
-      setActiveIndustry(active?.industries?.[0] || "");
-    } else {
-      setActiveIndustry("");
+  function clearCloseTimer() {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
     }
-  }, [activeTab, active?.hasIndustries, active?.industries]);
-
-  // ====== RESPONSIVO GRID (<=1300 => 6; >1300 => 9) ======
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
-  useEffect(() => {
-    function checkSize() {
-      setIsLargeScreen(window.innerWidth > 1300);
-    }
-    checkSize();
-    window.addEventListener("resize", checkSize);
-    return () => window.removeEventListener("resize", checkSize);
-  }, []);
-
-  // ====== GERA CARDS (9 ou 6) ======
-  function hashString(str) {
-    let h = 0;
-    for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
-    return h;
   }
 
-  function getCards(tab, industry) {
-    const base = Array.isArray(tab?.featured) ? tab.featured : [];
-    if (!base.length) return [];
-
-    // para sinalização digital, varia por indústria (fica “vivo”)
-    const seed = tab?.hasIndustries ? hashString(`${tab.key}::${industry}`) : 0;
-
-    const rotated = base
-      .map((x, i) => ({ ...x, __i: i }))
-      .sort((a, b) => ((a.__i + seed) % 97) - ((b.__i + seed) % 97));
-
-    const wanted = isLargeScreen ? 9 : 6;
-    const out = [];
-    for (let i = 0; i < wanted; i++) out.push(rotated[i % rotated.length]);
-    return out.map(({ __i, ...rest }) => rest);
+  function scheduleClose() {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => setOpen(false), 160);
   }
 
-  const cards = useMemo(
-    () => getCards(active, activeIndustry),
-    [active, activeIndustry, isLargeScreen]
-  );
-
-  // ====== LINKS /SHOP ======
-  function slugify(str) {
-    return (str || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+  function closeNow() {
+    clearCloseTimer();
+    setOpen(false);
   }
 
-  function getShopHref(tabKey) {
-    // ✅ pedido explícito
-    if (tabKey === "sinalizacao-digital") {
-      return "/shop?category=solucoes-de-quiosque-de-sinalizacao-digital";
-    }
-    // restantes: slug automático pelo key (mantém previsível)
-    return `/shop?category=${slugify(tabKey)}`;
+  function goTo(url) {
+    closeNow();
+    router.push(url);
   }
 
-  // ====== POSICIONAMENTO CORRETO (resolve “renderizar no final da página”) ======
+  function goToProduct(id) {
+    if (!id) return;
+    goTo(`/single-shop?product=${encodeURIComponent(id)}`);
+  }
+
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
 
   function updateMenuPosition() {
     const el = triggerRef.current;
-    if (!el) return;
-
+    if (!el || !isBrowser) return;
     const rect = el.getBoundingClientRect();
     const gap = 12;
     const top = Math.round(rect.bottom + gap);
-    const left = 0; // full width
-    const width = window.innerWidth;
-
-    setMenuPos({ top, left, width });
+    setMenuPos({ top, left: 0, width: window.innerWidth });
   }
 
   useEffect(() => {
@@ -331,29 +93,13 @@ export default function ProductMegaMenu() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
     };
   }, [open]);
 
-  // ====== AUTO-PLAY SLIDER ======
-  useEffect(() => {
-    if (!open) return;
-    if (pause) return;
-
-    const t = setInterval(() => {
-      setIdx((p) => (p + 1) % sliderItems.length);
-    }, 4500);
-
-    return () => clearInterval(t);
-  }, [open, pause, sliderItems.length]);
-
-  useEffect(() => {
-    if (open) setIdx(0);
-  }, [open]);
-
-  // ====== FECHAR AO CLICAR FORA ======
   useEffect(() => {
     function onDown(e) {
       if (!open) return;
@@ -366,11 +112,73 @@ export default function ProductMegaMenu() {
 
       if (!insideTrigger && !insideMenu) setOpen(false);
     }
+
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [open]);
 
-  // ESC
+  // =========================
+  // Slider
+  // =========================
+  const [sliderItems, setSliderItems] = useState([]);
+  const [sliderLoading, setSliderLoading] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadSlider() {
+      setSliderLoading(true);
+      try {
+        const data = await fetchJson(
+          `${API_BASE}/api/cms/vertical-solutions?featured=1`
+        );
+
+        const list = (data?.data || []).map((x) => ({
+          title: x?.wl_title || "Solução",
+          desc: x?.wl_description || "",
+          image: normalizeImg(x?.wl_image),
+          id: x?.wl_product?._id || "",
+        }));
+
+        if (alive) setSliderItems(list);
+      } catch {
+        if (alive) setSliderItems([]);
+      } finally {
+        if (alive) setSliderLoading(false);
+      }
+    }
+
+    loadSlider();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE]);
+
+  const [idx, setIdx] = useState(0);
+  const [pause, setPause] = useState(false);
+
+  useEffect(() => {
+    if (!open || pause || !sliderItems.length) return;
+    const t = setInterval(() => {
+      setIdx((p) => (p + 1) % sliderItems.length);
+    }, 4500);
+    return () => clearInterval(t);
+  }, [open, pause, sliderItems.length]);
+
+  useEffect(() => {
+    if (open) setIdx(0);
+  }, [open]);
+
+  function next() {
+    if (!sliderItems.length) return;
+    setIdx((p) => (p + 1) % sliderItems.length);
+  }
+
+  function prev() {
+    if (!sliderItems.length) return;
+    setIdx((p) => (p - 1 + sliderItems.length) % sliderItems.length);
+  }
+
   useEffect(() => {
     function onKey(e) {
       if (!open) return;
@@ -383,37 +191,269 @@ export default function ProductMegaMenu() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  function next() {
-    setIdx((p) => (p + 1) % sliderItems.length);
-  }
-  function prev() {
-    setIdx((p) => (p - 1 + sliderItems.length) % sliderItems.length);
-  }
+  const current =
+    sliderItems[idx] || {
+      title: "WaveLED — Produtos & Soluções",
+      desc: "Venda, montagem e aluguer com suporte técnico completo.",
+      image: "",
+      id: "",
+    };
 
-  function clearCloseTimer() {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
+  // =========================
+  // Tabs
+  // =========================
+  const [tabs, setTabs] = useState([]);
+  const [tabsLoading, setTabsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("");
+
+  useEffect(() => {
+    let alive = true;
+
+    async function loadTabsFromProducts() {
+      setTabsLoading(true);
+      try {
+        const data = await fetchJson(`${API_BASE}/api/products`);
+        const items = data?.data || [];
+        const map = new Map();
+
+        items.forEach((p) => {
+          const cats = [];
+          if (p?.wl_category?._id) cats.push(p.wl_category);
+          if (Array.isArray(p?.wl_categories)) cats.push(...p.wl_categories);
+
+          cats.forEach((c) => {
+            if (!c?._id) return;
+            const id = String(c._id);
+            const slug = String(c.wl_slug || "");
+            const name = String(c.wl_name || "Categoria");
+            if (!map.has(id)) {
+              map.set(id, { id, key: slug || id, label: name, heading: name });
+            }
+          });
+        });
+
+        const arr = Array.from(map.values()).sort((a, b) =>
+          String(a.label).localeCompare(String(b.label))
+        );
+
+        if (alive) {
+          setTabs(arr);
+          setActiveTab((prev) => prev || arr[0]?.key || "");
+        }
+      } catch {
+        if (alive) {
+          setTabs([]);
+          setActiveTab("");
+        }
+      } finally {
+        if (alive) setTabsLoading(false);
+      }
     }
-  }
-  function scheduleClose() {
-    clearCloseTimer();
-    closeTimerRef.current = setTimeout(() => setOpen(false), 160);
+
+    loadTabsFromProducts();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE]);
+
+  const active = useMemo(() => {
+    return tabs.find((t) => t.key === activeTab) || tabs[0] || null;
+  }, [tabs, activeTab]);
+
+  // =========================
+  // Products
+  // =========================
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    if (!activeTab) return;
+
+    async function loadProductsByCategory() {
+      setProductsLoading(true);
+      try {
+        const url = `${API_BASE}/api/products?category=${encodeURIComponent(
+          activeTab
+        )}`;
+        const data = await fetchJson(url);
+        if (alive) setProducts(data?.data || []);
+      } catch {
+        if (alive) setProducts([]);
+      } finally {
+        if (alive) setProductsLoading(false);
+      }
+    }
+
+    loadProductsByCategory();
+    return () => {
+      alive = false;
+    };
+  }, [API_BASE, activeTab]);
+
+  const productWrapperRef = useRef(null);
+
+  // =========================
+  // Tabs arrows (overflow)
+  // =========================
+  const tabsScrollerRef = useRef(null);
+  const [tabsOverflow, setTabsOverflow] = useState(false);
+  const [tabsAtLeft, setTabsAtLeft] = useState(true);
+  const [tabsAtRight, setTabsAtRight] = useState(false);
+
+  useEffect(() => {
+    const el = tabsScrollerRef.current;
+    if (!el) return;
+
+    let raf = 0;
+    const check = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const overflow = el.scrollWidth > el.clientWidth + 2;
+        const left = el.scrollLeft <= 1;
+        const right = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+        setTabsOverflow(overflow);
+        setTabsAtLeft(left);
+        setTabsAtRight(right);
+      });
+    };
+
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [tabs.length, open]);
+
+  function scrollTabs(dir) {
+    const el = tabsScrollerRef.current;
+    if (!el) return;
+    const step = Math.max(180, Math.round(el.clientWidth * 0.65));
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
   }
 
-  const current = sliderItems[idx];
-  const ctaHref = "/shop?category=solucoes-de-quiosque-de-sinalizacao-digital";
+  // =========================
+  // Visible products + see more logic
+  // =========================
+  const [initialCount, setInitialCount] = useState(6);
+  const [showAll, setShowAll] = useState(false);
+
+  const [hasScroll, setHasScroll] = useState(false);
+  const [atBottom, setAtBottom] = useState(false);
+  const [wasAtBottomByButton, setWasAtBottomByButton] = useState(false);
+
+  useEffect(() => {
+    if (!isBrowser) return;
+
+    const calc = () => {
+      const w = window.innerWidth;
+      if (w >= 1500) return 12;
+      if (w >= 1300) return 10;
+      if (w >= 1100) return 9;
+      if (w >= 900) return 8;
+      if (w >= 700) return 6;
+      return 6;
+    };
+
+    const apply = () => setInitialCount(calc());
+    apply();
+
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, [isBrowser]);
+
+  useEffect(() => {
+    setShowAll(false);
+    setWasAtBottomByButton(false);
+    requestAnimationFrame(() => {
+      const el = productWrapperRef.current;
+      if (el) el.scrollTo({ top: 0 });
+    });
+  }, [activeTab]);
+
+  const visibleProducts = useMemo(() => {
+    const min = Math.max(5, initialCount);
+    return showAll ? products : products.slice(0, min);
+  }, [products, showAll, initialCount]);
+
+  useEffect(() => {
+    const el = productWrapperRef.current;
+    if (!el) return;
+
+    let raf = 0;
+    const check = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const overflow = el.scrollHeight > el.clientHeight + 2;
+        const bottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+        setHasScroll(overflow);
+        setAtBottom(overflow ? bottom : true);
+        if (!bottom) setWasAtBottomByButton(false);
+      });
+    };
+
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [open, productsLoading, visibleProducts.length, showAll]);
+
+  const showButton = useMemo(() => {
+    if (productsLoading) return false;
+    if (!products?.length) return false;
+    if (!hasScroll) return false;
+    if (!showAll) return true;
+    if (atBottom && wasAtBottomByButton) return false;
+    return !atBottom;
+  }, [productsLoading, products, hasScroll, showAll, atBottom, wasAtBottomByButton]);
+
+  function handleSeeMore() {
+    const el = productWrapperRef.current;
+    if (!el) return;
+
+    if (!showAll) {
+      setShowAll(true);
+      requestAnimationFrame(() => {
+        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+        setTimeout(() => {
+          const bottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+          if (bottom) setWasAtBottomByButton(true);
+        }, 420);
+      });
+      return;
+    }
+
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    setTimeout(() => {
+      const bottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+      if (bottom) setWasAtBottomByButton(true);
+    }, 420);
+  }
+
+  // min-height 520px quando existir conteúdo
+  const hasMenuContent =
+    tabsLoading ||
+    productsLoading ||
+    (tabs && tabs.length > 0) ||
+    (products && products.length > 0) ||
+    (sliderItems && sliderItems.length > 0);
 
   return (
     <div className="wl-mega-root">
-      {/* Trigger */}
       <div
         className="product-menu"
         ref={triggerRef}
         onMouseEnter={() => {
           clearCloseTimer();
           setOpen(true);
-          // garante posição correta no mesmo frame
           requestAnimationFrame(updateMenuPosition);
         }}
         onMouseLeave={scheduleClose}
@@ -422,7 +462,6 @@ export default function ProductMegaMenu() {
           href="/products"
           className={`wl-navlink ${open ? "is-open" : ""}`}
           onClick={(e) => {
-            // mobile fallback
             e.preventDefault();
             setOpen((s) => !s);
             requestAnimationFrame(updateMenuPosition);
@@ -430,30 +469,23 @@ export default function ProductMegaMenu() {
           aria-haspopup="true"
           aria-expanded={open}
         >
-          Produtos
-          <span className={`wl-caret ${open ? "up" : ""}`} />
+          Produtos <span className={`wl-caret ${open ? "up" : ""}`} />
         </a>
       </div>
 
-      {/* Mega menu (FIXED com top calculado => não vai para o final da página) */}
       <div
         ref={menuRef}
         className={`wl-mega ${open ? "show" : ""}`}
         role="menu"
-        style={{
-          top: menuPos.top,
-          left: menuPos.left,
-          width: menuPos.width,
-        }}
+        style={{ top: menuPos.top, left: menuPos.left, width: menuPos.width }}
         onMouseEnter={() => {
           clearCloseTimer();
           setOpen(true);
         }}
         onMouseLeave={scheduleClose}
       >
-        <div className="wl-mega-inner">
+        <div className={`wl-mega-inner ${hasMenuContent ? "has-content" : ""}`}>
           <div className="content-box">
-            {/* ESQUERDA: SLIDER */}
             <div className="content-slide">
               <div
                 className="wl-slider"
@@ -461,33 +493,49 @@ export default function ProductMegaMenu() {
                 onMouseLeave={() => setPause(false)}
               >
                 <div className="wl-slide-bg">
-                  <img
-                    src={current.image}
-                    alt={current.title}
-                    className="wl-slide-img"
-                    loading="eager"
-                  />
+                  {current?.image ? (
+                    <img
+                      src={current.image}
+                      alt={current.title}
+                      className="wl-slide-img"
+                      loading="eager"
+                    />
+                  ) : null}
+
                   <div className="wl-slide-overlay" />
 
                   <div className="wl-slide-content">
                     <div className="text-content">
                       <h3 className="wl-slide-title">{current.title}</h3>
-                      <p className="wl-slide-desc">{current.desc}</p>
+                      <p className="wl-slide-desc mb-4">
+                        {current?.desc?.length > 90
+                          ? current?.desc?.substring(0, 90) + " ..."
+                          : current?.desc}
+                      </p>
                     </div>
 
                     <div className="space-div">
-                      <a href={""} className="wl-slide-cta text-dark">
+                      <button
+                        type="button"
+                        className="wl-slide-cta text-dark"
+                        onClick={() => goToProduct(current.id)}
+                        disabled={!current?.id}
+                      >
                         <span>Explorar soluções</span>
-                      </a>
+                      </button>
 
                       <div className="wl-dots" aria-label="Paginação">
-                        {sliderItems.map((_, i) => (
+                        {(sliderLoading
+                          ? Array.from({ length: 5 })
+                          : sliderItems
+                        ).map((_, i) => (
                           <button
                             key={i}
                             type="button"
                             className={`wl-dot ${i === idx ? "active" : ""}`}
                             onClick={() => setIdx(i)}
                             aria-label={`Ir para slide ${i + 1}`}
+                            disabled={!sliderItems.length}
                           />
                         ))}
                       </div>
@@ -497,17 +545,19 @@ export default function ProductMegaMenu() {
               </div>
             </div>
 
-            {/* DIREITA */}
             <div className="wl-right">
               <div className="space-div">
                 <div>
-                  <h5 className="wl-heading">{active.heading}</h5>
+                  <h5 className="wl-heading">
+                    Produtos <FaLongArrowAltRight />{" "}
+                    {active?.heading || "Categorias"}
+                  </h5>
                 </div>
 
                 <button
                   type="button"
                   className="close-icon"
-                  onClick={() => setOpen(false)}
+                  onClick={closeNow}
                   aria-label="Fechar menu"
                   title="Fechar"
                 >
@@ -515,109 +565,129 @@ export default function ProductMegaMenu() {
                 </button>
               </div>
 
-              {/* Tabs */}
-              <div className="wl-tabs" role="tablist" aria-label="Categorias">
-                {tabs.map((t) => (
+              <div className="wl-tabs-wrap" role="tablist" aria-label="Categorias">
+                {tabsOverflow && !tabsAtLeft ? (
                   <button
-                    key={t.key}
                     type="button"
-                    className={`wl-tab ${activeTab === t.key ? "active" : ""}`}
-                    onClick={() => setActiveTab(t.key)}
-                    role="tab"
-                    aria-selected={activeTab === t.key}
+                    className="wl-tabs-arrow left"
+                    onClick={() => scrollTabs(-1)}
+                    aria-label="Scroll tabs para a esquerda"
+                    title="Anterior"
                   >
-                    {t.label}
+                    <FaChevronLeft />
                   </button>
-                ))}
-              </div>
-
-             <div style={{margin:"15px 0px"}}>
-               <hr /> 
-             </div>
-
-              <div className="wl-body">
-                {/* Se tiver “áreas de aplicação”, mostra lista + grid */}
-                {active.hasIndustries ? (
-                  <div className="wl-two">
-                    <div className="wl-list" role="listbox" aria-label="Áreas de aplicação">
-                      {active.industries.map((it, i) => {
-                        const isActive = it === activeIndustry;
-                        return (
-                          <button
-                            key={`${active.key}-${i}`}
-                            type="button"
-                            className={`wl-list-item ${isActive ? "is-active" : ""}`}
-                            onClick={() => setActiveIndustry(it)}
-                            role="option"
-                            aria-selected={isActive}
-                          >
-                            <span>{it}</span>
-                            {isActive ? <span className="wl-arrow">→</span> : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div>
-                      <div className="wl-grid">
-                        {cards.map((f, i) => (
-                          <a
-                            key={`${active.key}-${activeIndustry}-img-${i}`}
-                            href={ctaHref}
-                            className="wl-card"
-                            title={`${f.tag}${activeIndustry ? ` — ${activeIndustry}` : ""}`}
-                          >
-                            <img
-                              src={f.img}
-                              alt={f.tag}
-                              className="wl-card-img"
-                              loading="lazy"
-                            />
-                            <div className="wl-card-shade" />
-                          </a>
-                        ))}
-                      </div>
-
-                      {/*  pedido: ao clicar redirecionar para o category específico */}
-                      <a href={ctaHref} className="wl-all">
-                        Ver soluções para {activeIndustry || "esta área"}
-                      </a>
-                    </div>
-                  </div>
                 ) : (
-                  // Sem subcategorias: só grid + CTA direto
-                  <div>
-                    <div className="wl-grid">
-                      {cards.map((f, i) => (
-                        <a
-                          key={`${active.key}-img-${i}`}
-                          href={ctaHref}
-                          className="wl-card"
-                          title={f.tag}
-                        >
-                          <img
-                            src={f.img}
-                            alt={f.tag}
-                            className="wl-card-img"
-                            loading="lazy"
-                          />
-                          <div className="wl-card-shade" />
-                        </a>
-                      ))}
-                    </div>
+                  <span className="wl-tabs-arrow-spacer" />
+                )}
 
-                    <a href={ctaHref} className="wl-all">
-                      Ver soluções de {active.label}
-                    </a>
-                  </div>
+                <div className="wl-tabs" ref={tabsScrollerRef}>
+                  {tabsLoading && !tabs.length ? (
+                    <div className="text-muted" style={{ padding: "6px 10px" }}>
+                      A carregar categorias…
+                    </div>
+                  ) : (
+                    tabs.map((t) => (
+                      <button
+                        key={t.key}
+                        type="button"
+                        className={`wl-tab ${
+                          activeTab === t.key ? "active" : ""
+                        }`}
+                        onClick={() => setActiveTab(t.key)}
+                        role="tab"
+                        aria-selected={activeTab === t.key}
+                        title={t.label}
+                      >
+                        {t.label}
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                {tabsOverflow && !tabsAtRight ? (
+                  <button
+                    type="button"
+                    className="wl-tabs-arrow right"
+                    onClick={() => scrollTabs(1)}
+                    aria-label="Scroll tabs para a direita"
+                    title="Seguinte"
+                  >
+                    <FaChevronRight />
+                  </button>
+                ) : (
+                  <span className="wl-tabs-arrow-spacer" />
                 )}
               </div>
 
-              {/* rodapé mobile */}
+              <div style={{ margin: "12px 0px" }}>
+                <hr />
+              </div>
+
+              <div className="wl-body product-wrapper">
+                <div className="wl-wrap" ref={productWrapperRef}>
+                  {productsLoading ? (
+                    Array.from({ length: Math.max(6, initialCount) }).map(
+                      (_, i) => (
+                        <article key={`sk-${i}`} className="wl-skeleton">
+                          <div className="image" />
+                          <small className="wl-prod-name"> </small>
+                        </article>
+                      )
+                    )
+                  ) : visibleProducts?.length ? (
+                    visibleProducts.map((p) => {
+                      const img = p?.wl_images?.[0] || "";
+                      const name = p?.wl_name || "Produto";
+                      return (
+                        <article key={p._id} className="wl-prod">
+                          <button
+                            type="button"
+                            className="wl-prod-link"
+                            onClick={() => goToProduct(p?._id)}
+                            title={name}
+                          >
+                            <div className="image">
+                              <img
+                                src={normalizeImg(img)}
+                                alt={name}
+                                loading="lazy"
+                              />
+                            </div>
+                            <small className="wl-prod-name">
+                              {name.length > 40
+                                ? name.substring(0, 40) + "..."
+                                : name}
+                            </small>
+                          </button>
+                        </article>
+                      );
+                    })
+                  ) : (
+                    <div className="text-muted" style={{ padding: 10 }}>
+                      Sem produtos para esta categoria.
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-center">
+                  <div className="view-all">
+                    {showButton ? (
+                      <button
+                        type="button"
+                        className="see-more-btn"
+                        onClick={handleSeeMore}
+                      >
+                        Ver todos
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
               <button
                 type="button"
                 className="wl-close d-lg-none"
-                onClick={() => setOpen(false)}
+                onClick={closeNow}
               >
                 Fechar
               </button>
@@ -626,7 +696,6 @@ export default function ProductMegaMenu() {
         </div>
       </div>
 
-      {/*  GLOBAL CSS (evita bugs de styled-jsx quando o menu é fixed) */}
       <style jsx global>{`
         .wl-mega-root {
           position: relative;
@@ -661,14 +730,13 @@ export default function ProductMegaMenu() {
           margin-top: 2px;
         }
 
-        /* ✅ FIXED + top calculado => não vai “para o fim da página” */
         .wl-mega {
           position: fixed;
           opacity: 0;
           transform: translateY(8px);
           pointer-events: none;
           transition: opacity 0.18s ease, transform 0.18s ease;
-          z-index: 999999; /* acima de navbar fixed */
+          z-index: 999999;
           padding: 0px 60px;
         }
         .wl-mega.show {
@@ -684,28 +752,42 @@ export default function ProductMegaMenu() {
           overflow: hidden;
         }
 
+        /* ✅ min-height do megamenu */
+        .wl-mega-inner.has-content {
+          min-height: 520px;
+        }
+
+        /* ✅ IMPORTANTE: faz as colunas ficarem com a MESMA altura */
         .content-box {
           display: flex;
           width: 100%;
+          align-items: stretch; /* <- chave */
         }
 
-        /* SLIDER */
         .content-slide {
           flex: 0 0 auto;
+          display: flex; /* <- permite o slider esticar */
         }
+
+        /* ✅ LEFT SLIDER sempre com a mesma altura do container */
         .wl-slider {
           height: 100%;
-          min-height: 570px;
+          min-height: 570px; /* <- igual ao min-height pedido */
           min-width: 500px;
-          max-width: 500px; 
+          max-width: 500px;
+          display: flex;
         }
+
         .wl-slide-bg {
           position: relative;
           height: 100%;
-          min-height: 440px;
+          min-height: 520px; /* <- garante mesma altura */
+          width: 100%;
           background: #0b0f18;
           overflow: hidden;
+          display: flex;
         }
+
         .wl-slide-img {
           position: absolute;
           inset: 0;
@@ -715,15 +797,18 @@ export default function ProductMegaMenu() {
           transform: scale(1.02);
           filter: saturate(1.05);
         }
+
         .wl-slide-overlay {
           position: absolute;
           inset: 0;
           background: linear-gradient(to bottom, transparent 40%, #000);
         }
+
         .wl-slide-content {
           position: relative;
           z-index: 2;
           height: 100%;
+          width: 100%;
           padding: 26px 22px 18px;
           display: flex;
           flex-direction: column;
@@ -745,22 +830,30 @@ export default function ProductMegaMenu() {
           font-weight: 800;
           text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
         }
+
         .wl-slide-desc {
           color: rgba(255, 255, 255, 0.82);
           margin: 0 0 14px;
           max-width: 44ch;
           font-size: 18px;
         }
+
         .wl-slide-cta {
           width: fit-content;
           background: #fff;
-          color: #0b0f18 !important;
+          color: #0b0f18;
           text-decoration: none;
           font-weight: 700;
           padding: 10px 14px;
           border-radius: 12px;
           transition: transform 0.15s ease;
           white-space: nowrap;
+          border: 0;
+          cursor: pointer;
+        }
+        .wl-slide-cta:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
         }
         .wl-slide-cta:hover {
           transform: translateY(-1px);
@@ -772,6 +865,7 @@ export default function ProductMegaMenu() {
           align-items: center;
           margin-top: 14px;
         }
+
         .wl-dot {
           width: 10px;
           height: 10px;
@@ -779,19 +873,21 @@ export default function ProductMegaMenu() {
           border: 0;
           background: #fff;
           cursor: pointer;
-          transition: transform 0.15s ease, background 0.15s ease, width 0.15s ease;
+          transition: transform 0.15s ease, background 0.15s ease,
+            width 0.15s ease;
         }
+
         .wl-dot.active {
           background: #0019ff;
           width: 26px;
         }
 
-        /* DIREITA */
         .wl-right {
           padding: 22px 22px 18px;
           min-width: 0;
           flex: 1 1 auto;
         }
+
         .wl-heading {
           font-size: 22px;
           font-weight: 900;
@@ -799,20 +895,56 @@ export default function ProductMegaMenu() {
           margin: 0;
         }
 
+        .wl-tabs-wrap {
+          display: grid;
+          grid-template-columns: 40px 1fr 40px;
+          align-items: center;
+          gap: 8px;
+          margin-top: 10px;
+        }
+
         .wl-tabs {
           display: flex;
           gap: 10px;
           align-items: center;
-          padding: 10px;
+          padding: 8px 10px;
           border-radius: 999px;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
-          margin-top: 10px;
+          scrollbar-width: none;
         }
+        .wl-tabs::-webkit-scrollbar {
+          display: none;
+        }
+
+        .wl-tabs-arrow {
+          border: 1px solid rgba(0, 0, 0, 0.25);
+          background: #000;
+          color: #fff;
+          width: 40px;
+          height: 40px;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-weight: 900;
+          transition: transform 0.12s ease, background 0.12s ease;
+          font-size: 16px;
+        }
+        .wl-tabs-arrow:hover {
+          transform: scale(1.04);
+          background: #111;
+        }
+        .wl-tabs-arrow-spacer {
+          width: 40px;
+          height: 40px;
+        }
+
         .wl-tab {
           border: 0;
           background: #f5f7fb;
-          padding: 6px 16px;
+          padding: 7px 16px;
           border-radius: 999px;
           font-weight: 800;
           font-size: 16px;
@@ -821,9 +953,11 @@ export default function ProductMegaMenu() {
           cursor: pointer;
           transition: background 0.15s ease, color 0.15s ease;
         }
+
         .wl-tab:hover {
           background: rgba(0, 0, 0, 0.04);
         }
+
         .wl-tab.active {
           background: #0019ff;
           color: #fff;
@@ -833,92 +967,76 @@ export default function ProductMegaMenu() {
           margin-top: 6px;
         }
 
-        .wl-two {
+        .product-wrapper .wl-wrap {
           display: grid;
-          grid-template-columns: 1fr 1.35fr;
-          gap: 16px;
-          align-items: start;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 18px;
+          row-gap: 20px;
+          align-content: start;
+          max-height: min(520px, calc(100vh - 280px));
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding: 6px 10px 12px 2px;
+          box-sizing: border-box;
         }
 
-        .wl-list {
-          display: grid;
-          gap: 10px;
-          padding-right: 6px;
-          max-height: 500px;
-          overflow: auto;
+        .wl-prod {
+          min-width: 0;
         }
-        .wl-list-item {
+
+        .wl-prod-link {
+          width: 100%;
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          border-radius: 14px;
           border: 0;
           background: transparent;
+          cursor: pointer;
+          padding: 0;
+        }
+
+        .wl-prod .image,
+        .wl-skeleton .image {
           width: 100%;
-          text-align: left;
+          aspect-ratio: 16 / 10;
+          border-radius: 14px;
+          background: rgba(0, 0, 0, 0.06);
+          overflow: hidden;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          color: #6b7280;
-          font-weight: 900;
-          padding: 2px 10px;
-          font-size: 16px;
-          cursor: pointer;
-          border-radius: 10px;
-          transition: background 0.12s ease, color 0.12s ease;
-        }
-        .wl-list-item:hover {
-          background: rgba(13, 110, 253, 0.06);
-          color: #0019ff;
-        }
-        .wl-list-item.is-active {
-          color: #0019ff;
-        }
-        .wl-arrow {
-          color: #0019ff;
-          font-weight: 900;
+          justify-content: center;
         }
 
-        /*  GRID: <=1300 => 2 colunas; >1300 => 3 colunas */
-        .wl-grid {
-          display: grid;
-          gap: 12px;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        @media (min-width: 1301px) {
-          .wl-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-          }
-        }
-
-        .wl-card {
-          position: relative;
-          border-radius: 12px;
-          overflow: hidden;
-          height: 120px;
-          text-decoration: none;
-          background: #0b0f18;
-        } 
-        .wl-card-img {
-          position: absolute;
-          inset: 0;
+        .wl-prod .image img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          transform: scale(1.02);
-        }
-        .wl-card-shade {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            180deg,
-            rgba(0, 0, 0, 0.05) 0%,
-            rgba(0, 0, 0, 0.45) 100%
-          );
+          object-fit: contain;
+          display: block;
+          background: #fff;
         }
 
-        .wl-all {
-          display: inline-block;
-          margin-top: 10px;
+        .wl-prod-name {
+          display: block;
+          font-weight: 800;
+          font-size: 15px;
+          color: #111827;
+          line-height: 1.25;
+          text-align: center;
+          margin: 0;
+          padding: 0 8px;
+        }
+
+        .see-more-btn {
+          border: 0;
+          background: transparent;
           font-weight: 900;
           color: #0019ff;
-          text-decoration: none;
+          cursor: pointer;
+          padding: 10px 0 0;
         }
 
         .wl-close {
@@ -948,12 +1066,12 @@ export default function ProductMegaMenu() {
           flex: 0 0 auto;
           margin-top: 2px;
         }
+
         .close-icon:hover {
           transform: scale(1.04);
           background: rgba(0, 0, 0, 0.06);
         }
 
-        /* RESPONSIVO */
         @media (max-width: 991.98px) {
           .wl-mega {
             padding: 0 12px;
@@ -961,6 +1079,8 @@ export default function ProductMegaMenu() {
           .content-box {
             display: block;
           }
+
+          /* no mobile, o slider pode ser menor */
           .wl-slider {
             min-height: 300px;
             min-width: unset;
@@ -969,26 +1089,28 @@ export default function ProductMegaMenu() {
           .wl-slide-bg {
             min-height: 300px;
           }
+
           .wl-right {
             padding: 16px 14px 14px;
           }
-          .wl-two {
-            grid-template-columns: 1fr;
+
+          .product-wrapper .wl-wrap {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            max-height: min(520px, calc(100vh - 320px));
+            gap: 16px;
+            row-gap: 18px;
           }
-          .wl-list {
-            max-height: 220px;
+        }
+
+        @media (max-width: 520px) {
+          .product-wrapper .wl-wrap {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           }
         }
 
         @media (max-width: 420px) {
           .wl-slide-title {
             font-size: 22px;
-          }
-          .wl-grid {
-            grid-template-columns: 1fr;
-          }
-          .wl-card {
-            min-height: 110px;
           }
         }
       `}</style>

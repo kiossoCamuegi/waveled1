@@ -17,7 +17,8 @@ import "react-multi-carousel/lib/styles.css";
 import { GoArrowUpRight } from "react-icons/go";
 import LanguageSwitcher from "~/components/components/lang-switcher/lang-switcher";
 
-// ✅ Evita FOUC: ProductMegaMenu só no client (sem SSR)
+//  Evita FOUC: ProductMegaMenu só no client (sem SSR)
+
 const ProductMegaMenu = dynamic(() => import("./ProductMegaMenu"), {
   ssr: false,
   loading: () => (
@@ -31,6 +32,26 @@ const ProductMegaMenu = dynamic(() => import("./ProductMegaMenu"), {
     />
   ),
 });
+
+
+
+const SolutionMegaMenu = dynamic(() => import("./SolutionMegaMenu"), {
+  ssr: false,
+  loading: () => (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        height: 24,
+        width: 90,
+      }}
+    />
+  ),
+});
+
+
+
+ 
 
 // ====== Config ======
 const isBrowser = typeof window !== "undefined";
@@ -70,10 +91,10 @@ const HeaderFourInner = () => {
 
   const [scrollClassName, setScrollClassName] = useState("");
 
-  // ✅ Estado da transparência do header
+  //  Estado da transparência do header
   const [isTransparent, setIsTransparent] = useState(false);
 
-  // ✅ Só soluções
+  //  Só soluções
   const [solutions, setSolutions] = useState([]);
   const [loadingSolutions, setLoadingSolutions] = useState(true);
   const [solutionsError, setSolutionsError] = useState("");
@@ -94,7 +115,7 @@ const HeaderFourInner = () => {
   }, [pathname, searchParams?.toString()]);
 
   /**
-   * ✅ Cálculo estável:
+   *  Cálculo estável:
    * - Se houver megamenu aberto => NÃO transparente
    * - Caso contrário, transparente apenas se header sobrepor as “secções alvo”
    */
@@ -123,13 +144,13 @@ const HeaderFourInner = () => {
     });
   }, [activeMenu]);
 
-  // ✅ Medição antes de pintar (reduz flicker)
+  //  Medição antes de pintar (reduz flicker)
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
     setIsTransparent(computeShouldBeTransparent());
   }, [computeShouldBeTransparent]);
 
-  // ✅ Atualiza em scroll/resize com rAF
+  //  Atualiza em scroll/resize com rAF
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -340,7 +361,7 @@ const HeaderFourInner = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [activeMenu]);
 
-  // ✅ Visual Mode
+  //  Visual Mode
   const headerIsWhite = !!activeMenu || !isTransparent;
   const logoSrc = headerIsWhite ? LOGO_DARK : LOGO_LIGHT;
   const logoAlt = headerIsWhite ? "Waveled (logo preto)" : "Waveled (logo branco)";
@@ -354,7 +375,7 @@ const HeaderFourInner = () => {
       } ${activeMenu ? "header-force-white" : ""}`}
       data-header-mode={headerIsWhite ? "white" : "glass"}
     >
-      {/* ✅ CSS: links brancos no transparente, pretos no branco */}
+      {/*  CSS: links brancos no transparente, pretos no branco */}
       <style jsx>{`
         /* Base */
         #site-header-area .tekup-header-bottom {
@@ -373,7 +394,7 @@ const HeaderFourInner = () => {
           box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
         }
 
-        /* ✅ Links/texto brancos no transparente */
+        /*  Links/texto brancos no transparente */
         #site-header-area[data-header-mode="glass"] .nav-link-item,
         #site-header-area[data-header-mode="glass"] .nav-link-item.drop-trigger,
         #site-header-area[data-header-mode="glass"] .tekup-header-info-box-data h6,
@@ -385,7 +406,7 @@ const HeaderFourInner = () => {
           color: #fff !important;
         }
 
-        /* ✅ Links/texto pretos no branco */
+        /*  Links/texto pretos no branco */
         #site-header-area[data-header-mode="white"] .nav-link-item,
         #site-header-area[data-header-mode="white"] .nav-link-item.drop-trigger,
         #site-header-area[data-header-mode="white"] .tekup-header-info-box-data h6,
@@ -472,73 +493,20 @@ const HeaderFourInner = () => {
                     <ProductMegaMenu />
                   </li>
 
-                  {/* Soluções */}
-                  <li
-                    className="nav-item sub-menu-item-hover"
-                    data-trigger="solutions"
-                    onMouseEnter={() => setActiveMenu("solutions")}
-                    onMouseLeave={() => setActiveMenu(null)}
-                    onFocus={() => setActiveMenu("solutions")}
-                    onBlur={() => setActiveMenu(null)}
-                  >
-                    <Link href="#" className="nav-link-item" onClick={(e) => e.preventDefault()}>
-                      Soluções
-                    </Link>
-
-                    <div
-                      className="sub-menu-box"
-                      role="dialog"
-                      aria-hidden={activeMenu !== "solutions"}
-                      style={{ display: activeMenu === "solutions" ? "block" : "none" }}
-                    >
-                      {loadingSolutions ? (
-                        <div style={{ padding: "1rem 1.25rem" }}>
-                          <small>A carregar soluções…</small>
-                        </div>
-                      ) : solutionsError ? (
-                        <div style={{ padding: "1rem 1.25rem", color: "crimson" }}>
-                          <small>{solutionsError}</small>
-                        </div>
-                      ) : solutionCards.length === 0 ? (
-                        <div style={{ padding: "1rem 1.25rem" }}>
-                          <small>Sem soluções para listar.</small>
-                        </div>
-                      ) : (
-                        <Carousel {...carouselCfg}>
-                          {solutionCards.map(({ id, title, img, href }) => (
-                            <article className="submn-article" key={id}>
-                              <div className="image-header">
-                                <img
-                                  src={img || "https://via.placeholder.com/600x338?text=Sem+imagem"}
-                                  className="solution-hd-img"
-                                  alt={title}
-                                  loading="lazy"
-                                  decoding="async"
-                                />
-                                <div className="over-image">
-                                  <Link href={href} onClick={onMegaLinkClick}>
-                                    <div className="link-box">
-                                      <GoArrowUpRight />
-                                    </div>
-                                  </Link>
-                                </div>
-                              </div>
-                              <Link href={href} onClick={onMegaLinkClick}>
-                                <strong className="text-dark text-black">{title}</strong>
-                              </Link>
-                            </article>
-                          ))}
-                        </Carousel>
-                      )}
-                    </div>
-                  </li>
-
-                  {/* Serviços */}
+                 {/* Serviços */}
                   <li className="nav-item">
                     <Link href="/service" className="nav-link-item drop-trigger" onClick={onMegaLinkClick}>
                       Serviços
                     </Link>
                   </li>
+
+                  {/* Soluções */}
+                  <li className="nav-item" style={{ marginLeft: "20px" }}>
+                    <SolutionMegaMenu/>
+                  </li>
+              
+
+          
 
                   <li className="nav-item">
                     <Link href="contact-us" className="nav-link-item" onClick={onMegaLinkClick}>
