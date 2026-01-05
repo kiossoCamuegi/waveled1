@@ -6,8 +6,9 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import Slider from "react-slick";
 import Link from "next/link";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+import Lightbox from "react-awesome-lightbox";
+import "react-awesome-lightbox/build/style.css";
+// removido react-multi-carousel
 
 // === Skeletons (React-Bootstrap) ===
 import { Placeholder, Spinner } from "react-bootstrap";
@@ -25,7 +26,7 @@ const protocol =
   isBrowser && window.location.protocol === "https:" ? "https" : "http";
 const BaseUrl =
   protocol === "https"
-    ? "https://waveledserver1.vercel.app"
+    ? "https://waveledserver.vercel.app"
     : "http://localhost:4000";
 const withHost = (u) =>
   u ? (isAbsoluteUrl(u) ? u : `${BaseUrl}${u}`) : "";
@@ -58,8 +59,14 @@ const industriesSliderSettings = {
   autoplaySpeed: 3000,
   swipeToSlide: true,
   responsive: [
-    { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
-    { breakpoint: 768, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+    {
+      breakpoint: 1024,
+      settings: { slidesToShow: 2, slidesToScroll: 1 },
+    },
+    {
+      breakpoint: 768,
+      settings: { slidesToShow: 1, slidesToScroll: 1 },
+    },
   ],
 };
 
@@ -77,16 +84,15 @@ function useSolutionId() {
   return id;
 }
 
-// Util para criar array de slides do lightbox a partir de itens {image,title}
-// NOW: yet-another-react-lightbox usa { src, title }
-const toLbSlides = (arr = []) =>
+// Util para criar array de imagens do lightbox a partir de itens {image,title}
+const toLbImages = (arr = []) =>
   arr
     .filter(Boolean)
     .map((x) => ({
-      src: withHost(x?.image || x),
+      url: withHost(x?.image || x), // suporta tanto objeto {image} como string direta
       title: safeText(x?.title || "", ""),
     }))
-    .filter((x) => !!x.src);
+    .filter((x) => !!x.url);
 
 /* ===========================================================
    SKELETONS
@@ -213,7 +219,10 @@ const KitsSectionSkeleton = () => (
 
     <div className="row">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3" key={i}>
+        <div
+          className="col-12 col-sm-6 col-md-4 col-lg-3 mb-3"
+          key={i}
+        >
           <div className="p-2">
             <div className="skeleton-soft skeleton-light">
               <Placeholder
@@ -301,7 +310,7 @@ const GridSixSkeleton = () => (
 function BlockSection({ title, description, imgs = [], onOpenLightbox }) {
   // Espera até 4 imagens: [0]=large, [1]=md, [2]=small1, [3]=small2
   const present = useMemo(() => imgs.filter(Boolean), [imgs]);
-  const lbSlides = useMemo(() => toLbSlides(present), [present]);
+  const lbImages = useMemo(() => toLbImages(present), [present]);
 
   const getIdx = useCallback(
     (visualPos) => {
@@ -313,8 +322,8 @@ function BlockSection({ title, description, imgs = [], onOpenLightbox }) {
   );
 
   const handleClick = (visualPos) => {
-    if (!onOpenLightbox || lbSlides.length === 0) return;
-    onOpenLightbox(lbSlides, getIdx(visualPos));
+    if (!onOpenLightbox || lbImages.length === 0) return;
+    onOpenLightbox(lbImages, getIdx(visualPos));
   };
 
   const [large, md, s1, s2] = imgs;
@@ -382,13 +391,15 @@ function BlockSection({ title, description, imgs = [], onOpenLightbox }) {
 }
 
 function BlockItem({ reverse = false, title, description, img, onOpenLightbox }) {
-  const lbSlides = useMemo(
-    () => toLbSlides([img ? { image: img, title } : null]),
+  const lbImages = useMemo(
+    () => toLbImages([img ? { image: img, title } : null]),
     [img, title]
   );
 
   return (
-    <aside className={reverse ? "block-solution-section reverse" : "block-solution-section"}>
+    <aside
+      className={reverse ? "block-solution-section reverse" : "block-solution-section"}
+    >
       <div className="block-side">
         <h2 className="tekup-section-title pt-0 pb-0 mb-4 text-dark">
           {safeText(title)}
@@ -403,7 +414,9 @@ function BlockItem({ reverse = false, title, description, img, onOpenLightbox })
               alt={safeText(title)}
               role="button"
               style={{ width: "100%", cursor: "zoom-in" }}
-              onClick={() => onOpenLightbox && onOpenLightbox(lbSlides, 0)}
+              onClick={() =>
+                onOpenLightbox && onOpenLightbox(lbImages, 0)
+              }
             />
           ) : null}
         </div>
@@ -432,10 +445,12 @@ function KitsSection({ kits = [], productMap = {}, onOpenLightbox }) {
       {kitsWithProducts.map((kit) => {
         const prods = kit.products;
 
-        const gallery = toLbSlides(
+        const gallery = toLbImages(
           prods.map((p) => {
             const thumb =
-              Array.isArray(p.wl_images) && p.wl_images.length ? p.wl_images[0] : "";
+              Array.isArray(p.wl_images) && p.wl_images.length
+                ? p.wl_images[0]
+                : "";
             return thumb ? { image: thumb, title: p?.wl_name } : null;
           })
         );
@@ -444,9 +459,10 @@ function KitsSection({ kits = [], productMap = {}, onOpenLightbox }) {
           <div key={kit._id} className="mb-5">
             <div className="d-flex align-items-center justify-content-between">
               <h4 className="text-light mb-3">{safeText(kit.name)}</h4>
-              <small className="text-silver">{prods.length} produto(s)</small>
+              <small className="text-silver">
+                {prods.length} produto(s)
+              </small>
             </div>
-
             <Slider {...sliderProducts}>
               {prods.map((p, idx) => {
                 const thumb =
@@ -460,7 +476,11 @@ function KitsSection({ kits = [], productMap = {}, onOpenLightbox }) {
                   <article key={id} className="p-2">
                     <div
                       className="image"
-                      style={{ background: "#111", borderRadius: 8, padding: 8 }}
+                      style={{
+                        background: "#111",
+                        borderRadius: 8,
+                        padding: 8,
+                      }}
                     >
                       {thumb ? (
                         <img
@@ -475,22 +495,30 @@ function KitsSection({ kits = [], productMap = {}, onOpenLightbox }) {
                             cursor: "zoom-in",
                           }}
                           onClick={() =>
-                            onOpenLightbox && onOpenLightbox(gallery, idx)
+                            onOpenLightbox &&
+                            onOpenLightbox(gallery, idx)
                           }
                         />
                       ) : (
                         <div
-                          style={{ height: 180, borderRadius: 8, background: "#222" }}
+                          style={{
+                            height: 180,
+                            borderRadius: 8,
+                            background: "#222",
+                          }}
                         />
                       )}
                     </div>
-
-                    <Link href={`/single-shop?product=${id}`} className="d-block mt-2">
+                    <Link
+                      href={`/single-shop?product=${id}`}
+                      className="d-block mt-2"
+                    >
                       <strong className="text-white" title={name}>
-                        {name.length > 45 ? name.slice(0, 45) + "…" : name}
+                        {name.length > 45
+                          ? name.slice(0, 45) + "…"
+                          : name}
                       </strong>
                     </Link>
-
                     {p?.wl_category?.wl_name ? (
                       <small className="d-block text-silver">
                         {p.wl_category.wl_name}
@@ -511,13 +539,16 @@ function KitsSection({ kits = [], productMap = {}, onOpenLightbox }) {
    HELPERS PARA CONSTRUIR LISTA DE EXEMPLOS + LAYOUT
    =========================================================== */
 
+// Mistura os vários grupos do endpoint em 1 única lista de exemplos
 function buildExamplesArray(examplesObj) {
   const ex = examplesObj || {};
   const main = Array.isArray(ex.main) ? ex.main : [];
   const relCat = Array.isArray(ex.relatedByCategory) ? ex.relatedByCategory : [];
   const relProd = Array.isArray(ex.relatedByProducts) ? ex.relatedByProducts : [];
 
-  const showAll = Array.isArray(ex.showcase?.allShowcase) ? ex.showcase.allShowcase : [];
+  const showAll = Array.isArray(ex.showcase?.allShowcase)
+    ? ex.showcase.allShowcase
+    : [];
 
   const result = [];
   const seen = new Set();
@@ -530,23 +561,34 @@ function buildExamplesArray(examplesObj) {
     result.push(item);
   };
 
+  // Ordem de prioridade:
+  // 1) main (curados para a solução)
   main.forEach(pushUnique);
+  // 2) exemplos showcase (categoria + produtos)
   showAll.forEach(pushUnique);
+  // 3) related (categoria/produtos) para complementar
   relCat.forEach(pushUnique);
   relProd.forEach(pushUnique);
 
   return result;
 }
 
+// Constrói o layout: hero (4) + [block(2) + grid(…)] repetido
 function buildLayout(examples = []) {
   const all = Array.isArray(examples) ? examples : [];
-  if (!all.length) return { heroExamples: [], sections: [] };
+  if (!all.length) {
+    return { heroExamples: [], sections: [] };
+  }
 
+  // 1) Hero: primeiras 4 imagens
   const heroExamples = all.slice(0, 4);
-  const usedIds = new Set(heroExamples.map((ex) => String(ex._id || "")));
+  const usedIds = new Set(
+    heroExamples.map((ex) => String(ex._id || ""))
+  );
 
   const sections = [];
-  const findRemaining = () => all.filter((ex) => !usedIds.has(String(ex._id || "")));
+  const findRemaining = () =>
+    all.filter((ex) => !usedIds.has(String(ex._id || "")));
 
   let remaining = findRemaining();
   let guard = 0;
@@ -554,21 +596,33 @@ function buildLayout(examples = []) {
   while (remaining.length && guard < 50) {
     guard++;
 
-    const blockCandidates = remaining.filter((ex) => hasLongDescription(ex, 30));
+    // 2) Secção de blocos (BlockItem) – apenas exemplos com descrição >= 150
+    const blockCandidates = remaining.filter((ex) =>
+      hasLongDescription(ex, 30)
+    );
 
     if (blockCandidates.length) {
-      const blockItems = blockCandidates.slice(0, Math.min(2, blockCandidates.length));
+      const blockItems = blockCandidates.slice(
+        0,
+        Math.min(2, blockCandidates.length)
+      );
       sections.push({ type: "block", items: blockItems });
-      blockItems.forEach((ex) => usedIds.add(String(ex._id || "")));
+      blockItems.forEach((ex) =>
+        usedIds.add(String(ex._id || ""))
+      );
     }
 
+    // atualizar remaining
     remaining = findRemaining();
     if (!remaining.length) break;
 
+    // 3) Secção "grid" – vamos usar slider com TODOS os restantes desta ronda
     const gridItems = remaining.slice(0, 100);
     if (gridItems.length) {
       sections.push({ type: "grid", items: gridItems });
-      gridItems.forEach((ex) => usedIds.add(String(ex._id || "")));
+      gridItems.forEach((ex) =>
+        usedIds.add(String(ex._id || ""))
+      );
     }
 
     remaining = findRemaining();
@@ -586,27 +640,27 @@ const SolutionPage = () => {
 
   const [loading, setLoading] = useState(true);
   const [solution, setSolution] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [kits, setKits] = useState([]);
-  const [examples, setExamples] = useState([]);
+  const [products, setProducts] = useState([]); // /solutions/:id/products
+  const [kits, setKits] = useState([]); // /solutions/:id/kits
+  const [examples, setExamples] = useState([]); // lista já misturada
   const [error, setError] = useState(null);
 
-  // Lightbox (global)
+  // Estado do Lightbox
   const [lbOpen, setLbOpen] = useState(false);
-  const [lbSlides, setLbSlides] = useState([]);
+  const [lbImages, setLbImages] = useState([]);
   const [lbIndex, setLbIndex] = useState(0);
 
-  const openLightbox = useCallback((slidesArray, startAt = 0) => {
-    const s = Array.isArray(slidesArray) ? slidesArray : [];
-    if (!s.length) return;
-    setLbSlides(s);
+  const openLightbox = useCallback((imagesArray, startAt = 0) => {
+    const imgs = Array.isArray(imagesArray) ? imagesArray : [];
+    if (!imgs.length) return;
+    setLbImages(imgs);
     setLbIndex(Number.isFinite(startAt) ? startAt : 0);
     setLbOpen(true);
   }, []);
 
   const closeLightbox = useCallback(() => {
     setLbOpen(false);
-    setLbSlides([]);
+    setLbImages([]);
     setLbIndex(0);
   }, []);
 
@@ -618,7 +672,10 @@ const SolutionPage = () => {
     return map;
   }, [products]);
 
-  const { heroExamples, sections } = useMemo(() => buildLayout(examples), [examples]);
+  const { heroExamples, sections } = useMemo(
+    () => buildLayout(examples),
+    [examples]
+  );
 
   useEffect(() => {
     let cancel = false;
@@ -627,23 +684,34 @@ const SolutionPage = () => {
       if (!solutionId) return;
       setLoading(true);
       setError(null);
-
       try {
+        // Podemos buscar tudo em paralelo
         const [prodResp, kitsResp, exResp] = await Promise.all([
-          axios.get(`${BaseUrl}/api/solutions/${solutionId}/products`, { withCredentials: true }),
-          axios.get(`${BaseUrl}/api/solutions/${solutionId}/kits`, { withCredentials: true }),
-          axios.get(`${BaseUrl}/api/solutions/${solutionId}/examples`, { withCredentials: true }),
+          axios.get(
+            `${BaseUrl}/api/solutions/${solutionId}/products`,
+            { withCredentials: true }
+          ),
+          axios.get(`${BaseUrl}/api/solutions/${solutionId}/kits`, {
+            withCredentials: true,
+          }),
+          axios.get(
+            `${BaseUrl}/api/solutions/${solutionId}/examples`,
+            { withCredentials: true }
+          ),
         ]);
 
         if (cancel) return;
 
+        // Produtos e kits
         setProducts(prodResp?.data?.data || []);
         setKits(kitsResp?.data?.data || []);
 
+        // Endpoint de examples agora devolve solution + examples.*
         const exPayload = exResp?.data?.data || {};
         const solMeta = exPayload.solution;
         if (!solMeta) throw new Error("Solução não encontrada.");
 
+        // Solução: preferimos alldata se existir
         setSolution(solMeta.alldata || solMeta);
 
         const examplesObj = exPayload.examples || {};
@@ -651,7 +719,11 @@ const SolutionPage = () => {
         setExamples(allExamples);
       } catch (err) {
         console.error(err);
-        setError(err?.response?.data?.error || err?.message || "Erro ao carregar dados.");
+        setError(
+          err?.response?.data?.error ||
+            err?.message ||
+            "Erro ao carregar dados."
+        );
       } finally {
         if (!cancel) setLoading(false);
       }
@@ -671,31 +743,45 @@ const SolutionPage = () => {
 
       <section className="section pb-0 mb-0 tekup-section-padding">
         <div className="container">
+          {/* ======= LOADING STATE (Skeletons) ======= */}
           {loading && (
             <div className="py-4">
               <div className="d-flex align-items-center gap-2 mb-3">
-                <Spinner animation="border" size="sm" variant="secondary" />
-                <span className="text-muted">A carregar solução…</span>
+                <Spinner
+                  animation="border"
+                  size="sm"
+                  variant="secondary"
+                />
+                <span className="text-muted">
+                  A carregar solução…
+                </span>
               </div>
 
+              {/* 1) Cabeçalho + 4 exemplos */}
               <BlockSectionSkeleton />
+
+              {/* 2) Kits */}
               <KitsSectionSkeleton />
 
+              {/* 3) Imagem principal */}
               <br />
               <br />
               <SolutionImageSkeleton />
 
+              {/* 4) Dois blocos seguintes (placeholder) */}
               <div className="mt-4">
                 <BlockItemSkeleton />
                 <BlockItemSkeleton />
               </div>
 
+              {/* 5) Grelha final */}
               <br />
               <br />
               <GridSixSkeleton />
             </div>
           )}
 
+          {/* ======= ERROR ======= */}
           {!loading && error && (
             <div className="py-5">
               <h4>Ocorreu um problema</h4>
@@ -703,21 +789,34 @@ const SolutionPage = () => {
             </div>
           )}
 
+          {/* ======= SUCCESS ======= */}
           {!loading && !error && solution && (
             <>
+              {/* 1) Cabeçalho + 4 exemplos (hero) */}
               <BlockSection
                 title={solution.title}
                 description={solution.description}
-                imgs={[heroExamples[0], heroExamples[1], heroExamples[2], heroExamples[3]]}
+                imgs={[
+                  heroExamples[0],
+                  heroExamples[1],
+                  heroExamples[2],
+                  heroExamples[3],
+                ]}
                 onOpenLightbox={openLightbox}
               />
 
-              <KitsSection kits={kits} productMap={productMap} onOpenLightbox={openLightbox} />
+              {/* 2) Kits */}
+              <KitsSection
+                kits={kits}
+                productMap={productMap}
+                onOpenLightbox={openLightbox}
+              />
             </>
           )}
         </div>
       </section>
 
+      {/* 3) Imagem principal da solução */}
       {!loading && !error && solution?.image ? (
         <>
           <br />
@@ -735,7 +834,9 @@ const SolutionPage = () => {
               role="button"
               onClick={() =>
                 openLightbox(
-                  toLbSlides([{ image: solution.image, title: solution.title }]),
+                  toLbImages([
+                    { image: solution.image, title: solution.title },
+                  ]),
                   0
                 )
               }
@@ -746,6 +847,7 @@ const SolutionPage = () => {
         </>
       ) : null}
 
+      {/* 4 & 5) Padrão repetido: [BlockItem x2] + [Slider de Indústrias] */}
       {!loading && !error && sections.length > 0 && (
         <>
           {sections.map((section, sIdx) => {
@@ -763,8 +865,14 @@ const SolutionPage = () => {
                       <BlockItem
                         key={ex._id || `${sIdx}-${idx}`}
                         reverse={idx % 2 === 0}
-                        title={safeText(ex.title, solution?.title || "Exemplo")}
-                        description={safeText(ex.description, solution?.description || "")}
+                        title={safeText(
+                          ex.title,
+                          solution?.title || "Exemplo"
+                        )}
+                        description={safeText(
+                          ex.description,
+                          solution?.description || ""
+                        )}
                         img={ex.image}
                         onOpenLightbox={openLightbox}
                       />
@@ -778,10 +886,13 @@ const SolutionPage = () => {
               const items = section.items || [];
               if (!items.length) return null;
 
-              const gallery = toLbSlides(items);
+              const gallery = toLbImages(items);
 
               return (
-                <section key={`grid-${sIdx}`} className="mt-4 bg-black ">
+                <section
+                  key={`grid-${sIdx}`}
+                  className="mt-4 bg-black "
+                >
                   <div className="section tekup-section-padding">
                     <div className="container">
                       <hr />
@@ -795,45 +906,58 @@ const SolutionPage = () => {
                           </div>
                           <div style={{ maxWidth: "550px" }}>
                             <p className="text-silver mt-2">
-                              Combinações de produtos e projetos interessantes baseados nesta solução.
+                              Combinações de produtos e projetos
+                              interessantes baseados nesta solução.
                             </p>
                           </div>
                         </div>
-
                         <br />
-
+                        {/* Slider react-slick (substitui react-multi-carousel) */}
                         <Slider
                           {...industriesSliderSettings}
                           className="industries-carousel-container"
                         >
                           {items.map((ex, index) => {
                             const img = withHost(ex?.image);
-                            const title = safeText(ex?.title, "Exemplo");
+                            const title = safeText(
+                              ex?.title,
+                              "Exemplo"
+                            );
                             if (!img) return null;
-
                             return (
-                              <div key={ex._id || `${sIdx}-${index}`} style={{ padding: "0 12px", marginBottom: 24 }}>
-                                <article
-                                  className="industries-carousel-item"
-                                  style={{ padding: "0 12px", marginBottom: 24 }}
+                              <div  style={{ padding: "0 12px", marginBottom: 24 }}>
+                                 <article
+                                key={ex._id || `${sIdx}-${index}`}
+                                className="industries-carousel-item"
+                                style={{ padding: "0 12px", marginBottom: 24 }}
+                              >
+                                <img
+                                  src={img}
+                                  alt={title}
+                                  style={{
+                                    width: "100%",
+                                    height: 480,
+                                    borderRadius: 8,
+                                    objectFit: "cover",
+                                    cursor: "zoom-in",
+                                  }}
+                                  role="button"
+                                  onClick={() =>
+                                    openLightbox(
+                                      gallery,
+                                      index
+                                    )
+                                  }
+                                />
+                                <strong
+                                  className="text-silver d-block mt-2"
+                                  title={title}
                                 >
-                                  <img
-                                    src={img}
-                                    alt={title}
-                                    style={{
-                                      width: "100%",
-                                      height: 480,
-                                      borderRadius: 8,
-                                      objectFit: "cover",
-                                      cursor: "zoom-in",
-                                    }}
-                                    role="button"
-                                    onClick={() => openLightbox(gallery, index)}
-                                  />
-                                  <strong className="text-silver d-block mt-2" title={title}>
-                                    {title.length > 60 ? title.slice(0, 60) + "…" : title}
-                                  </strong>
-                                </article>
+                                  {title.length > 60
+                                    ? title.slice(0, 60) + "…"
+                                    : title}
+                                </strong>
+                              </article>
                               </div>
                             );
                           })}
@@ -853,13 +977,14 @@ const SolutionPage = () => {
       <CtaThreeSection />
       <FooterFour />
 
-      {/* Lightbox global (YARL) */}
-      <Lightbox
-        open={lbOpen}
-        close={closeLightbox}
-        index={lbIndex}
-        slides={lbSlides}
-      />
+      {/* Lightbox global */}
+      {lbOpen && (
+        <Lightbox
+          images={lbImages}
+          startIndex={lbIndex}
+          onClose={closeLightbox}
+        />
+      )}
     </div>
   );
 };
