@@ -4,7 +4,7 @@ const RecentProjectsCardFour = ({ item }) => {
 
     const isBrowser = typeof window !== "undefined";
     const protocol = isBrowser && window.location.protocol === "https:" ? "https" : "http";
-    const BaseUrl = protocol === "https"  ?  'https://waveledserver1.vercel.app' : "http://localhost:4000";
+    const BaseUrl = protocol === "https"  ?  'https://waveledserver.vercel.app' : "http://localhost:4000";
 
     return (
         <div className="tekup-portfolio-wrap3">
