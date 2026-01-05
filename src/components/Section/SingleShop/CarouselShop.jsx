@@ -2,6 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
+// (Opcional) Plugins — descomenta se quiser
+// import Captions from "yet-another-react-lightbox/plugins/captions";
+// import "yet-another-react-lightbox/plugins/captions.css";
+// import Zoom from "yet-another-react-lightbox/plugins/zoom";
+// import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails";
+// import "yet-another-react-lightbox/plugins/thumbnails.css";
+
 const CONTENT = {
   tabs: [
     { id: "cosmeticos", label: "Lojas de cosmetico" },
@@ -42,12 +49,12 @@ const CONTENT = {
 export default function CarouselShop() {
   const data = CONTENT;
 
+  const slides = data.slides || [];
+  const total = slides.length;
+
   const [activeTab, setActiveTab] = useState(data.tabs[0]?.id || "");
   const [index, setIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  const slides = data.slides || [];
-  const total = slides.length;
 
   const timerRef = useRef(null);
   const hoveringRef = useRef(false);
@@ -60,11 +67,11 @@ export default function CarouselShop() {
   // Transição do texto bottom-left
   const [textKey, setTextKey] = useState(0);
 
-  // ✅ YARL usa { src, ... }
   const lightboxSlides = useMemo(() => {
     return slides.map((s) => ({
       src: s.image,
       title: s.title || "",
+      description: s.description || "",
     }));
   }, [slides]);
 
@@ -102,6 +109,7 @@ export default function CarouselShop() {
     const onKey = (e) => {
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") goTo(index - 1);
+      if (e.key === "Escape") setIsLightboxOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -130,12 +138,21 @@ export default function CarouselShop() {
 
   return (
     <>
-      {/* Lightbox (YARL) */}
+      {/* Lightbox (Yet Another React Lightbox) */}
       <Lightbox
         open={isLightboxOpen}
         close={() => setIsLightboxOpen(false)}
         index={index}
         slides={lightboxSlides}
+        // (Opcional) plugins:
+        // plugins={[Captions, Zoom, Thumbnails]}
+        // captions={{ showToggle: true, descriptionTextAlign: "start" }}
+        // zoom={{ maxZoomPixelRatio: 2.5 }}
+        // thumbnails={{ position: "bottom", width: 110, height: 68, border: 0, padding: 0, gap: 10 }}
+        carousel={{ finite: false }}
+        on={{
+          view: ({ index: i }) => setIndex(i),
+        }}
       />
 
       <div className="section tekup-section-padding">
@@ -167,7 +184,7 @@ export default function CarouselShop() {
             <div className="wl-top container-fluid px-4 px-lg-5 pt-4">
               <div className="d-flex gap-3 flex-wrap align-items-center">
                 {data.tabs.map((t, i) => {
-                  const isActive = activeTab === t.id && i === 0;
+                  const isActive = i === index || activeTab === t.id;
                   return (
                     <button
                       key={t.id}
@@ -175,7 +192,10 @@ export default function CarouselShop() {
                       className={`wl-pill btn border-0 ${
                         isActive ? "wl-pill--active" : "wl-pill--idle"
                       }`}
-                      onClick={() => setActiveTab(t.id)}
+                      onClick={() => {
+                        setActiveTab(t.id);
+                        goTo(i); // tabs controlam o slide por índice
+                      }}
                     >
                       {t.label}
                     </button>
@@ -211,7 +231,7 @@ export default function CarouselShop() {
                 </div>
               </div>
 
-              {/* Clique no background abre lightbox (opcional) */}
+              {/* Clique no background abre lightbox */}
               <button
                 type="button"
                 className="wl-bg-click"
@@ -224,7 +244,7 @@ export default function CarouselShop() {
       </div>
 
       <style>{`
-        .section-carousel{}
+        .section-carousel{ }
 
         .wl-hero{
           width:100%;
@@ -245,8 +265,14 @@ export default function CarouselShop() {
           transition: opacity .75s ease, transform 1.2s ease;
           will-change: opacity, transform;
         }
-        .wl-bg.is-on{ opacity: 1; transform: scale(1.04); }
-        .wl-bg.is-off{ opacity: 0; transform: scale(1.02); }
+        .wl-bg.is-on{
+          opacity: 1;
+          transform: scale(1.04);
+        }
+        .wl-bg.is-off{
+          opacity: 0;
+          transform: scale(1.02);
+        }
 
         .wl-overlay{
           position:absolute; inset:0;
@@ -265,7 +291,10 @@ export default function CarouselShop() {
           pointer-events:none;
         }
 
-        .wl-top{ position: relative; z-index: 3; }
+        .wl-top{
+          position: relative;
+          z-index: 3;
+        }
 
         .wl-pill{
           padding: 12px 18px;

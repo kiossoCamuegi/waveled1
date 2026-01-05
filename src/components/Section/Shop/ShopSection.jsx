@@ -1,6 +1,9 @@
 "use client";
+
 import Link from "next/link";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useEffect, useMemo, useRef, useState } from "react";  
+import axios from "axios";   
 import Slider from "react-slick/lib/slider";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -199,13 +202,12 @@ function VideoSolutionsSlick() {
   const closeLightbox = () => setLightboxOpen(false);
 
   const ytPoster = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-  const ytEmbed = (id) =>
-    `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+  const ytEmbed = (id) =>  `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
 
-  // ✅ REF do slider
+  //  REF do slider
   const sliderRef = useRef(null);
 
-  // ✅ settings SEM foco automático (isso é o que costuma causar o scroll)
+  //  settings SEM foco automático (isso é o que costuma causar o scroll)
   const settings = {
     dots: true,
     arrows: true,
@@ -215,7 +217,7 @@ function VideoSolutionsSlick() {
     slidesToShow: 3,
     slidesToScroll: 1,
 
-    // 🔥 importantes para NÃO puxar scroll
+    //   importantes para NÃO puxar scroll
     accessibility: false,
     focusOnSelect: false,
 
@@ -226,7 +228,7 @@ function VideoSolutionsSlick() {
     ],
   };
 
-  // ✅ avança 1 slide após 1.5s, sem scroll (restaura scroll + blur no foco)
+  //  avança 1 slide após 1.5s, sem scroll (restaura scroll + blur no foco)
   useEffect(() => {
     const t = setTimeout(() => {
       const y = window.scrollY;
@@ -247,7 +249,7 @@ function VideoSolutionsSlick() {
     return () => clearTimeout(t);
   }, []);
 
-  // ✅ ESC fecha + trava scroll
+  //  ESC fecha + trava scroll
   useEffect(() => {
     if (!lightboxOpen) return;
 
@@ -498,176 +500,194 @@ function MoreProducts({ items }) {
         ))}
       </div>
     </div>
-  );
+  ); 
 }
 
-function ShopSection() {
-  const [VerticalSolutionsItems, SetVerticalSolutionsItems] = useState([
-    {
-      solution: "Soluções para quiosques",
-      link: "#",
-      title: "Display led para Balcões de empresas",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T114631.721.jpg",
-    },
-    {
-      solution: "Soluções de suspenção",
-      link: "#",
-      title: "Painel led para exibição de Anuncios",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T114658.431.jpg",
-    },
-    {
-      solution: "soluções autonomas",
-      link: "#",
-      title: "Assistente robotico Painel transparente",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T114807.547.png",
-    },
-    {
-      solution: "soluções autonomas",
-      link: "#",
-      title: "Assistente robotico Painel transparente",
-      image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T114317.325.png",
-    },
-  ]);
 
-  const [MainItemData, setMainItemData] = useState({
-    images: [
-      "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-      "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-      "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-      "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-    ],
-    title: "Painel led Interativo para consulta de informação e engajamento",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam suscipit odio eu neque vulputate pharetra. Nullam iaculis odio nec sem mattis fringilla. Nunc vitae fringilla libero.",
-    link: "",
-  });
 
-  var VerticalSliderSettings = {
+
+
+
+
+
+
+
+
+
+
+export default function ShopSection() {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("category");
+
+  const isBrowser = typeof window !== "undefined";
+  const protocol =  isBrowser && window.location.protocol === "https:" ? "https" : "http";
+  const API_BASE = protocol === "https"  ? "https://waveledserver1.vercel.app"   : "http://localhost:4000";
+
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  // SLIDER SETTINGS
+  const verticalSliderSettings = {
     dots: true,
     infinite: false,
     arrows: false,
-    speed: 1500,
+    speed: 1200,
     slidesToShow: 3,
     slidesToScroll: 3,
-    initialSlide: 0,
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 3, slidesToScroll: 3, infinite: true, dots: true } },
-      { breakpoint: 600, settings: { slidesToShow: 2, slidesToScroll: 2, initialSlide: 2 } },
-      { breakpoint: 480, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+      { breakpoint: 1024, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 480, settings: { slidesToShow: 1 } },
     ],
   };
 
+  // LOAD PAGE BY CATEGORY
+  useEffect(() => {
+    if (!categoryId) return;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [pageRes, catsRes] = await Promise.all([
+          axios.get(API_BASE+`/api/cms/category-pages/${categoryId}`),
+          axios.get(API_BASE+`/api/categories`), 
+        ]);
+
+        setPage(pageRes.data?.data || null);
+        setCategories(catsRes.data?.data || []);
+      } catch (e) {
+        console.error("Erro ao carregar categoria", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [categoryId]);
+
+  if (loading) {
+    return (
+      <div className="container py-5 text-center">
+        <p>A carregar categoria…</p>
+      </div>
+    );
+  }
+
+  if (!page) {
+    return (
+      <div className="container py-5 text-center">
+        <p>Categoria não encontrada.</p>
+      </div>
+    );
+  }
+
+  /* ======================
+   * MAPS DE DADOS
+   * ====================== */
+
+  const topVerticalSolutions =
+    page.top_solutions?.map((x) => ({
+      solution: x.solution?.wl_title,
+      title: x.solution?.wl_title,
+      image: x.solution?.wl_image,
+      link: x.solution?.wl_product?.wl_link || "#",
+    })) || [];
+
+  const mainItem = {
+    images: page.featured_product?.images || [],
+    title: page.featured_product?.title || "",
+    description: page.featured_product?.description || "",
+    link: page.featured_product?.product?.wl_link || "#",
+  };
+
+  const sliderSolutions =
+    page.slider_solutions?.map((s) => ({
+      title: s.title,
+      image: s.image,
+      link: s.product?.wl_link || "#",
+    })) || [];
+
+  const twoSpecial =
+    page.two_special_products?.map((s) => ({
+      image: s.image,
+      link: s.product?.wl_link || "#",
+    })) || [];
+
+  const mostUsed =
+    page.most_used_solutions?.map((x) => ({
+      title: x.solution?.wl_title,
+      image: x.solution?.wl_image,
+      link: x.solution?.wl_product?.wl_link || "#",
+    })) || [];
+
+  /* ======================
+   * RENDER
+   * ====================== */
+
   return (
     <div className="categorie-page">
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-
       <div className="container">
+
+        {/* HEADER + CATEGORIES */}
         <HeaderCategorieAndTitle
-          title={"Venda, aluguer e montagem de ecrãs LED"}
-          categories={[
-            { title: "Retalho", link: "", id: "" },
-            { title: "Corporativo", link: "", id: "" },
-            { title: "Publicidade", link: "", id: "" },
-            { title: "Indoor / Outdoor", link: "", id: "" },
-          ]}
-          active={""}
+          title={page.wl_category?.wl_name || ""}
+          categories={categories.map((c) => ({
+            title: c.wl_name,
+            link: `/shop?category=${c._id}`,
+            id: c._id,
+          }))}
+          active={categoryId}
         />
 
-        <aside className="card-slides-vertical">
-          <Slider {...VerticalSliderSettings}>
-            {VerticalSolutionsItems.map((item, index) => (
-              <CardSliderVertical item={item} key={index} />
-            ))}
-          </Slider>
-        </aside>
+        {/* TOP VERTICAL SOLUTIONS */}
+        {topVerticalSolutions.length > 0 && (
+          <aside className="card-slides-vertical">
+            <Slider {...verticalSliderSettings}>
+              {topVerticalSolutions.map((item, index) => (
+                <CardSliderVertical key={index} item={item} />
+              ))}
+            </Slider>
+          </aside>
+        )}
 
-        <aside>
-          <MainItemCategoryPage item={MainItemData} />
-        </aside>
+        {/* MAIN ITEM */}
+        {mainItem.images?.length > 0 && (
+          <aside>
+            <MainItemCategoryPage item={mainItem} />
+          </aside>
+        )}
       </div>
 
-      <aside>
-        <FiveSolutionsSlider
-          items={[
-            {
-              title: "Exposição de produtos",
-              link: "#",
-              image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765552975/waveled/uploads/ujvgfyrf22lvpuxavpzy.jpg",
-            },
-            {
-              title: "Consulta de informação",
-              link: "#",
-              image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765816651/waveled/uploads/uvvh74lqi65kukrqscgt.jpg",
-            },
-          ]}
-        />
-      </aside>
-
-      <div className="container">
+      {/* FIVE SOLUTIONS SLIDER */}
+      {sliderSolutions.length > 0 && (
         <aside>
-          <TwoNiceProducts
-            items={[
-              { title: "", link: "#", image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T163916.048%20(1).png" },
-              { title: "", link: "#", image: "https://ik.imagekit.io/fsobpyaa5i/image-gen%20-%202025-12-23T161429.113.jpg" },
-            ]}
-          />
+          <FiveSolutionsSlider items={sliderSolutions} />
         </aside>
-      </div>
+      )}
 
+      {/* TWO SPECIAL PRODUCTS */}
+      {twoSpecial.length > 0 && (
+        <div className="container">
+          <aside>
+            <TwoNiceProducts items={twoSpecial} />
+          </aside>
+        </div>
+      )}
+
+      {/* VIDEOS */}
       <aside>
         <VideoSolutionsSlick />
       </aside>
 
-      <div className="container">
-        <aside>
-          <MoreProducts
-            items={[
-              {
-                title: "Ecrãs LED com impacto real",
-                link: "",
-                desc: "Soluções para retalho, publicidade, empresas e eventos.",
-                image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765800718/waveled/uploads/dvcmwwu2ztz9jybh0qp5.jpg",
-              },
-              {
-                title: "Montras Digitais Transparentes",
-                desc: "Conteúdo dinâmico sem perder visibilidade do produto.",
-                link: "",
-                image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765801082/waveled/uploads/d5fpkyksw11iftkboldz.jpg",
-              },
-              {
-                title: "Experiência em Loja (Retail)",
-                desc: "Promoções, lançamentos e branding com brilho e nitidez.",
-                link: "",
-                image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765546380/waveled/uploads/smcqd5ii6bokpmyehuw2.jpg",
-              },
-              {
-                title: "Corporate & Apresentações",
-                desc: "Comunicação moderna para auditórios, receções e salas.",
-                link: "",
-                image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765474610/waveled/uploads/gorvhtvf5xnuzf7dupmt.jpg",
-              },
-              {
-                title: "Instalações Indoor/Outdoor",
-                desc: "Alta luminosidade, robustez e projetos personalizados.",
-                link: "",
-                image: "https://res.cloudinary.com/dcl5uszfj/image/upload/v1765279682/waveled/uploads/cgeduuafgxjta3cowo2s.jpg",
-              },
-              {
-                title: "WaveLED — Produtos & Soluções",
-                desc: "Venda, montagem e aluguer com suporte técnico completo.",
-                link: "",
-                image: "http://localhost:4000/uploads/1761930429747_tpqlS4NE.png",
-              },
-            ]}
-          />
-        </aside>
-      </div>
+      {/* MOST USED */}
+      {mostUsed.length > 0 && (
+        <div className="container">
+          <aside>
+            <MoreProducts items={mostUsed} />
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
-
-export default ShopSection;
