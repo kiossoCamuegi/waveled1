@@ -12,7 +12,7 @@ const protocol =
   isBrowser && window.location.protocol === "https:" ? "https" : "http";
 const API_BASE =
   protocol === "https"
-    ? "https://waveledserver.vercel.app"
+    ? "https://waveledserver1.vercel.app"
     : "http://localhost:4000";
 
 async function fetchJson(url) {
