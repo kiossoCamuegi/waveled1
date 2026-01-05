@@ -6,8 +6,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import Slider from "react-slick";
 import Link from "next/link";
-import Lightbox from "react-awesome-lightbox";
-import "react-awesome-lightbox/build/style.css";
+import Lightbox from "react-awesome-lightbox"; 
 // removido react-multi-carousel
 
 // === Skeletons (React-Bootstrap) ===
