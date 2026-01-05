@@ -25,7 +25,7 @@ const protocol =
   isBrowser && window.location.protocol === "https:" ? "https" : "http";
 const BaseUrl =
   protocol === "https"
-    ? "https://waveledserver.vercel.app"
+    ? "https://waveledserver1.vercel.app"
     : "http://localhost:4000";
 const withHost = (u) =>
   u ? (isAbsoluteUrl(u) ? u : `${BaseUrl}${u}`) : "";
